@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Warehouse } from '../types/warehouse'
 
 export const api = axios.create({
-  baseURL: 'http://localhost:5000/',
+  baseURL: 'http://wh-inv.railway.internal',
   headers: {
     'Content-Type': 'application/json',
   },
