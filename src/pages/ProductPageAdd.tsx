@@ -17,7 +17,12 @@ export default function ProductPageAdd({
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Храним количество для каждого продукта
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+
+  // Храним флаги загрузки (true/false) для каждого продукта
+  const [loadingProductIds, setLoadingProductIds] = useState<{ [key: string]: boolean }>({});
 
   // Загрузка продуктов
   useEffect(() => {
@@ -52,8 +57,14 @@ export default function ProductPageAdd({
 
   // Обработчик добавления
   const handleAdd = async (productId: string) => {
+    // Если уже идёт запрос по этому товару, выходим
+    if (loadingProductIds[productId]) return;
+
     const quantity = quantities[productId] || 0;
     if (quantity <= 0) return;
+
+    // Ставим флаг загрузки для этого товара
+    setLoadingProductIds(prev => ({ ...prev, [productId]: true }));
 
     try {
       await api.patch(`/api/products/${productId}/quantity`, {
@@ -62,82 +73,97 @@ export default function ProductPageAdd({
         warehouseId,
       });
       
+      // Обновляем количество в списке
       const updatedProducts = allProducts.map(p => 
         p._id === productId ? { ...p, quantity: p.quantity + quantity } : p
       );
-      
       setAllProducts(updatedProducts);
+
+      // Сбрасываем поле ввода количества
       setQuantities(prev => ({ ...prev, [productId]: 0 }));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
+    } finally {
+      // Снимаем флаг загрузки
+      setLoadingProductIds(prev => ({ ...prev, [productId]: false }));
     }
   };
 
   return (
     <div>
-      {/* Сообщения об ошибках */}
       {error && <div className="error-text">{error}</div>}
 
-      {/* Список продуктов */}
-      {filteredProducts.map(product => (
-        <div key={product._id} className="card product-item">
-          {product.photo?.url && (
-            <img
-              src={product.photo.url}
-              alt={product.name}
-              aria-label={product.name}
-            />
-          )}
-          <div className="product-item-content">
-            <div className="card-title">{product.name}</div>
-            <div style={{ marginTop: '8px' }}>
-              <div className="product-quantity-controls">
-                <button
-                  className="button"
-                  onClick={() => handleQuantityChange(product._id, (quantities[product._id] || 0) - 1)}
-                >
-                  -
-                </button>
+      {filteredProducts.map(product => {
+        const quantityValue = quantities[product._id] || 0;
+        const isProductLoading = !!loadingProductIds[product._id];
+
+        return (
+          <div key={product._id} className="card product-item">
+            {product.photo?.url && (
+              <img
+                src={product.photo.url}
+                alt={product.name}
+                aria-label={product.name}
+              />
+            )}
+            <div className="product-item-content">
+              <div className="card-title">{product.name}</div>
+              
+              {/* Блок изменения количества */}
+              <div style={{ marginTop: '8px' }}>
+                <div className="product-quantity-controls">
+                  <button
+                    className="button"
+                    onClick={() => handleQuantityChange(product._id, quantityValue - 1)}
+                    disabled={isProductLoading}
+                  >
+                    -
+                  </button>
+
+                  <input
+                    type="number"
+                    className="input"
+                    style={{ width: 80, textAlign: 'center' }}
+                    value={quantityValue}
+                    onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                    min={0}
+                    aria-label="Количество для добавления"
+                    disabled={isProductLoading}
+                  />
+
+                  <button
+                    className="button"
+                    onClick={() => handleQuantityChange(product._id, quantityValue + 1)}
+                    disabled={isProductLoading}
+                  >
+                    +
+                  </button>
+                </div>
 
                 <input
-                  type="number"
-                  className="input"
-                  style={{ width: 80, textAlign: 'center' }}
-                  value={quantities[product._id] || 0}
-                  onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                  type="range"
+                  className="range-slider"
                   min={0}
-                  aria-label="Количество для добавления"
+                  value={quantityValue}
+                  onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                  aria-label="Слайдер количества"
+                  disabled={isProductLoading}
                 />
 
+                {/* Кнопка "Добавить" */}
                 <button
                   className="button"
-                  onClick={() => handleQuantityChange(product._id, (quantities[product._id] || 0) + 1)}
+                  onClick={() => handleAdd(product._id)}
+                  disabled={isProductLoading || quantityValue === 0}
                 >
-                  +
+                  {isProductLoading ? 'Загрузка...' : `Добавить (${quantityValue} ед.)`}
                 </button>
               </div>
-
-              <input
-                type="range"
-                className="range-slider"
-                min={0}
-                value={quantities[product._id] || 0}
-                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                aria-label="Слайдер количества"
-              />
-
-              <button
-                className="button"
-                onClick={() => handleAdd(product._id)}
-              >
-                Добавить ({quantities[product._id] || 0} ед.)
-              </button>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
-      {/* Индикаторы загрузки */}
       {isLoading && <div style={{ textAlign: 'center', padding: '16px' }}>Загрузка...</div>}
       {!isLoading && filteredProducts.length === 0 && (
         <div style={{ textAlign: 'center', padding: '16px', color: 'var(--hint-color)' }}>
