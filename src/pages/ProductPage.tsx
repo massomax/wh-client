@@ -14,6 +14,7 @@ export default function ProductPage() {
   const [warehouseName, setWarehouseName] = useState('Загрузка...');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [productCategories, setProductCategories] = useState<string[]>([]);
 
   // Загрузка данных склада
   useEffect(() => {
@@ -26,6 +27,29 @@ export default function ProductPage() {
       }
     };
     fetchWarehouseData();
+  }, [warehouseId]);
+
+  // Загрузка категорий продуктов
+  useEffect(() => {
+    const fetchProductCategories = async () => {
+      try {
+        const response = await api.get(`/api/products/${warehouseId}`);
+        const products = response.data || [];
+        // Извлекаем уникальные непустые категории
+        const categories: string[] = Array.from(
+          new Set(
+            products
+              .map((p: any) => p.category)
+              .filter((c: string): c is string => typeof c === 'string' && c.trim() !== '')
+          )
+        );
+        setProductCategories(categories);
+      } catch (err) {
+        // При ошибке оставляем список категорий пустым
+        setProductCategories([]);
+      }
+    };
+    fetchProductCategories();
   }, [warehouseId]);
 
   return (
@@ -70,7 +94,6 @@ export default function ProductPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           aria-label="Поиск"
         />
-
         <select
           className="select"
           value={selectedCategory}
@@ -78,7 +101,11 @@ export default function ProductPage() {
           aria-label="Выбор категории"
         >
           <option value="all">Все категории</option>
-          {/* Категории будут добавлены динамически */}
+          {productCategories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
         </select>
       </div>
 

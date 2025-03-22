@@ -12,7 +12,11 @@ const WarehouseCard = ({ warehouse }: { warehouse: Warehouse }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="card" onClick={() => navigate(`/warehouses/${warehouse._id}`)} style={{ cursor: 'pointer' }}>
+    <div
+      className="card"
+      onClick={() => navigate(`/warehouses/${warehouse._id}`)}
+      style={{ cursor: 'pointer' }}
+    >
       <div className="card-title">{warehouse.name}</div>
       <div className="card-subtitle">{warehouse.address}</div>
       <div style={{ marginTop: '8px', color: 'var(--accent-text-color)' }}>
@@ -33,6 +37,14 @@ export default function WarehousesPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+
+  // Отслеживаем, смонтирован ли компонент
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const fetchWarehouses = useCallback(
     async (search = '') => {
@@ -43,16 +55,21 @@ export default function WarehousesPage() {
       abortControllerRef.current = controller;
 
       try {
-        setIsLoading(true);
-        setError('');
+        if (isMountedRef.current) {
+          setIsLoading(true);
+          setError('');
+        }
 
         const response = await api.get('/api/warehouses', {
           params: { search },
           signal: controller.signal,
         });
-        setWarehouses(response.data);
+
+        if (isMountedRef.current) {
+          setWarehouses(response.data);
+        }
       } catch (err: any) {
-        if (err.name !== 'CanceledError' && !controller.signal.aborted) {
+        if (isMountedRef.current && err.name !== 'CanceledError') {
           const errorMessage =
             err.response?.data?.message ||
             err.message ||
@@ -61,7 +78,7 @@ export default function WarehousesPage() {
           setWarehouses([]);
         }
       } finally {
-        if (!controller.signal.aborted) {
+        if (isMountedRef.current) {
           setIsLoading(false);
         }
       }
@@ -83,7 +100,7 @@ export default function WarehousesPage() {
       abortControllerRef.current?.abort();
       debouncedSearch.cancel();
     };
-  }, []);
+  }, [fetchWarehouses, debouncedSearch]);
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -166,7 +183,13 @@ export default function WarehousesPage() {
       )}
 
       {!isLoading && filteredWarehouses.length === 0 && !error && (
-        <div style={{ textAlign: 'center', padding: '16px', color: 'var(--hint-color)' }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '16px',
+            color: 'var(--hint-color)',
+          }}
+        >
           Склады не найдены
         </div>
       )}
