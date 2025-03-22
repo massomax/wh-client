@@ -11,7 +11,6 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Валидация username
   const validateUsername = (value: string) => {
     const trimmed = value.trim();
     if (!trimmed) return 'Имя пользователя обязательно';
@@ -22,7 +21,6 @@ export default function LoginForm() {
     return '';
   };
 
-  // Валидация пароля
   const validatePassword = (value: string) => {
     const pwd = value.trim();
     if (!pwd) return 'Пароль обязателен';
@@ -35,14 +33,12 @@ export default function LoginForm() {
     return '';
   };
 
-  // Проверка валидности формы при изменении полей
   useEffect(() => {
     const usernameError = validateUsername(username);
     const passwordError = validatePassword(password);
     setIsFormValid(!usernameError && !passwordError);
   }, [username, password]);
 
-  // Обработчик изменений
   const handleFieldChange = (field: 'username' | 'password', value: string) => {
     if (field === 'username') {
       setUsername(value);
@@ -53,7 +49,6 @@ export default function LoginForm() {
     }
   };
 
-  // Отправка формы
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -67,14 +62,18 @@ export default function LoginForm() {
         password: password.trim()
       });
       
-      // 1. Сохраняем токен
+      // Сохраняем токен и роль, полученные от сервера
       localStorage.setItem('authToken', response.data.token);
-      
-      // 2. Получаем путь для редиректа
-      const returnTo = location.state?.from?.pathname || '/';
-      
-      // 3. Делаем навигацию без перезагрузки страницы
-      navigate(returnTo, { replace: true });
+      localStorage.setItem('userRole', response.data.role);
+
+      // Определяем навигацию по роли пользователя
+      const role = response.data.role;
+      if (role === 'Менеджер') {
+        navigate('/manager', { replace: true });
+      } else {
+        const returnTo = location.state?.from?.pathname || '/';
+        navigate(returnTo, { replace: true });
+      }
 
     } catch (err: any) {
       if (err.response?.status === 400) {
@@ -96,16 +95,12 @@ export default function LoginForm() {
     }
   };
 
-  // Подсчёт "силы" пароля (для наглядности)
   const passwordStrengthLevel = (pwd: string) => {
-    // Условно каждые 2 символа считаем за 1 уровень
-    // Можно добавить дополнительные критерии
     return Math.min(4, Math.floor(pwd.length / 2));
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Поле для имени пользователя */}
       <div>
         <label htmlFor="username" className="label">
           Имя пользователя
@@ -116,12 +111,6 @@ export default function LoginForm() {
           value={username}
           onChange={(e) => handleFieldChange('username', e.target.value)}
           onBlur={() => setErrors((prev) => ({ ...prev, username: validateUsername(username) }))}
-          onKeyUp={(e) => {
-            // Можно оставить, но учтите, что e.preventDefault() в keyUp не блокирует ввод
-            if (!/[a-zA-Z0-9_\-@.]/.test(e.key)) {
-              // e.preventDefault(); // не всегда корректно
-            }
-          }}
           className={`input ${errors.username ? 'input-error' : ''}`}
           autoComplete="username"
           aria-label="Имя пользователя"
@@ -129,7 +118,6 @@ export default function LoginForm() {
         {errors.username && <p className="error-text">{errors.username}</p>}
       </div>
 
-      {/* Поле для пароля */}
       <div>
         <label htmlFor="password" className="label">
           Пароль
@@ -145,14 +133,11 @@ export default function LoginForm() {
           aria-label="Пароль"
         />
 
-        {/* Полоски силы пароля */}
         <div className="password-strength">
           {[1, 2, 3, 4].map((level) => (
             <div
               key={level}
-              className={`strength-bar ${
-                passwordStrengthLevel(password) >= level ? 'strength-bar-active' : ''
-              }`}
+              className={`strength-bar ${passwordStrengthLevel(password) >= level ? 'strength-bar-active' : ''}`}
             />
           ))}
         </div>
@@ -160,14 +145,12 @@ export default function LoginForm() {
         {errors.password && <p className="error-text">{errors.password}</p>}
       </div>
 
-      {/* Ошибка с сервера */}
       {errors.server && (
         <div className="error-text" style={{ border: '1px solid var(--destructive-text-color)', padding: 8 }}>
           {errors.server}
         </div>
       )}
 
-      {/* Кнопка отправки */}
       <button
         type="submit"
         disabled={!isFormValid || isLoading}
