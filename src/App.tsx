@@ -4,6 +4,7 @@ import ProductsPage from './pages/ProductPage'
 import ErrorPage from './components/ErrorPage'
 import LoginPage from './pages/LoginPage'
 import { JSX } from 'react'
+import './telegramTheme.css';
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('authToken')

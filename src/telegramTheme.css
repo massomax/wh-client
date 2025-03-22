@@ -1,0 +1,212 @@
+:root {
+    /* Telegram theme variables с fallback-значениями на случай, если что-то не придёт */
+    --bg-color: var(--tg-theme-bg-color, #ffffff);
+    --text-color: var(--tg-theme-text-color, #000000);
+    --hint-color: var(--tg-theme-hint-color, #a8a8a8);
+    --link-color: var(--tg-theme-link-color, #3c7be6);
+    --button-color: var(--tg-theme-button-color, #2e7d32);
+    --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+    --secondary-bg-color: var(--tg-theme-secondary-bg-color, #f9f9f9);
+    --header-bg-color: var(--tg-theme-header-bg-color, #ffffff);
+    --bottom-bar-bg-color: var(--tg-theme-bottom-bar-bg-color, #ffffff);
+    --accent-text-color: var(--tg-theme-accent-text-color, #3c7be6);
+    --section-bg-color: var(--tg-theme-section-bg-color, #ffffff);
+    --section-header-text-color: var(--tg-theme-section-header-text-color, #000000);
+    --section-separator-color: var(--tg-theme-section-separator-color, #e0e0e0);
+    --subtitle-text-color: var(--tg-theme-subtitle-text-color, #666666);
+    --destructive-text-color: var(--tg-theme-destructive-text-color, #ff3b30);
+  }
+  
+  /* Базовые стили для body и общего контейнера */
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  
+  /* Контейнер приложения */
+  .app-container {
+    padding: 16px;
+  }
+  
+  /* Шапка страницы */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--header-bg-color);
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--section-separator-color);
+  }
+  
+  .header-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .header .button-group button {
+    margin-left: 8px;
+  }
+  
+  /* Обнуление стилей кнопки */
+  .header button,
+  .button {
+    background: var(--button-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: opacity 0.2s ease;
+  }
+  
+  /* Для кнопок-ссылок или "Назад" можно использовать прозрачный фон */
+  .header .back-button {
+    background: none;
+    color: var(--link-color);
+  }
+  
+  /* Ховер-эффект */
+  .button:hover,
+  .header button:hover {
+    opacity: 0.9;
+  }
+  
+  /* Для деструктивных действий */
+  .button-destructive {
+    background-color: transparent;
+    color: var(--destructive-text-color);
+    border: 1px solid var(--destructive-text-color);
+  }
+  
+  /* Карточки */
+  .card {
+    background-color: var(--secondary-bg-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .card-subtitle {
+    font-size: 14px;
+    color: var(--subtitle-text-color);
+    margin-bottom: 4px;
+  }
+  
+  /* Инпуты и селекты */
+  .input,
+  .select {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid var(--section-separator-color);
+    border-radius: 4px;
+    background-color: var(--section-bg-color);
+    color: var(--text-color);
+    font-size: 14px;
+  }
+  
+  /* Ошибки */
+  .error-text {
+    color: var(--destructive-text-color);
+    background-color: #ffe5e5;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  
+  /* Скелет для блока товара */
+  .product-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .product-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  .product-item-content {
+    flex-grow: 1;
+  }
+  
+  /* Управление количеством */
+  .product-quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .product-quantity-controls .button {
+    padding: 4px 12px;
+  }
+  
+  /* Слайдер */
+  .range-slider {
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  /* Спиннер для загрузки (пример, если понадобится) */
+  .spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--section-separator-color);
+    border-radius: 50%;
+    border-top-color: var(--button-color);
+    animation: spin 0.6s linear infinite;
+  }
+  /* Примерная стилизация для формы */
+
+.label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+  
+  .input-error {
+    border: 1px solid var(--destructive-text-color) !important;
+  }
+  
+  /* Пример блока силы пароля */
+  .password-strength {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  
+  .strength-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background-color: var(--section-separator-color);
+    transition: background-color 0.2s;
+  }
+  
+  .strength-bar-active {
+    background-color: var(--button-color);
+  }
+  
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
