@@ -61,9 +61,9 @@ export default function WarehousesPage() {
           setWarehouses([]);
         }
       } finally {
-        if (!controller.signal.aborted) {
+        // if (!controller.signal.aborted) {
           setIsLoading(false);
-        }
+        // }
       }
     },
     [setWarehouses]
