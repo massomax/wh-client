@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Product } from '../types/product';
 import { api } from '../api/client';
 
@@ -19,9 +19,36 @@ export default function ProductPageSub({
   const [error, setError] = useState('');
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
-  // Пер-продуктовый флаг загрузки
+  // Флаги загрузки (true/false) для каждого продукта
   const [loadingProductIds, setLoadingProductIds] = useState<{ [key: string]: boolean }>({});
 
+  // Флаг отключения ползунка во время скролла
+  const [disableSlider, setDisableSlider] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ====== События скролла ======
+  useEffect(() => {
+    const handleScroll = () => {
+      setDisableSlider(true);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        setDisableSlider(false);
+      }, 200);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Загрузка продуктов
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -37,6 +64,7 @@ export default function ProductPageSub({
     fetchProducts();
   }, [warehouseId]);
 
+  // Фильтрация продуктов
   useEffect(() => {
     const result = allProducts.filter(p => 
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -45,7 +73,7 @@ export default function ProductPageSub({
     setFilteredProducts(result);
   }, [allProducts, searchQuery, selectedCategory]);
 
-  // Обработчик изменения количества
+  // Изменение количества
   const handleQuantityChange = (productId: string, value: number) => {
     const product = allProducts.find(p => p._id === productId);
     if (!product) return;
@@ -54,15 +82,12 @@ export default function ProductPageSub({
     setQuantities(prev => ({ ...prev, [productId]: newValue }));
   };
 
-  // Обработчик списания
+  // Списать
   const handleSubtract = async (productId: string) => {
-    // Если товар уже обрабатывается, игнорируем повторные нажатия
     if (loadingProductIds[productId]) return;
-
     const quantity = quantities[productId] || 0;
     if (quantity <= 0) return;
 
-    // Ставим флаг загрузки
     setLoadingProductIds(prev => ({ ...prev, [productId]: true }));
 
     try {
@@ -77,12 +102,10 @@ export default function ProductPageSub({
       );
       setAllProducts(updatedProducts);
 
-      // Сбрасываем количество
       setQuantities(prev => ({ ...prev, [productId]: 0 }));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
     } finally {
-      // Снимаем флаг загрузки
       setLoadingProductIds(prev => ({ ...prev, [productId]: false }));
     }
   };
@@ -146,7 +169,7 @@ export default function ProductPageSub({
                 value={quantityValue}
                 onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
                 aria-label="Слайдер количества"
-                disabled={isProductLoading}
+                disabled={isProductLoading || disableSlider}
               />
 
               <button
