@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { Warehouse } from '../types/warehouse';
@@ -36,39 +36,48 @@ export default function WarehousesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Храним текущий AbortController и флаг, что компонент смонтирован
   const abortControllerRef = useRef<AbortController | null>(null);
   const isMountedRef = useRef(true);
 
-  // Отслеживаем, смонтирован ли компонент
+  // При размонтировании укажем, что компонент больше не смонтирован
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
     };
   }, []);
 
-  const fetchWarehouses = useCallback(
-    async (search = '') => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
+  // Единственный эффект, который срабатывает при изменении searchQuery
+  useEffect(() => {
+    // Каждый раз перед новым запросом отменяем предыдущий
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
+    // Функция, делающая запрос
+    const loadWarehouses = async (query: string) => {
       try {
+        // Ставим загрузку
         if (isMountedRef.current) {
           setIsLoading(true);
           setError('');
         }
 
+        // Делаем запрос
         const response = await api.get('/api/warehouses', {
-          params: { search },
+          params: { search: query },
           signal: controller.signal,
         });
 
+        // Если компонент ещё смонтирован, обновляем состояние
         if (isMountedRef.current) {
           setWarehouses(response.data);
         }
       } catch (err: any) {
+        // Игнорируем ошибку, если запрос был отменён
         if (isMountedRef.current && err.name !== 'CanceledError') {
           const errorMessage =
             err.response?.data?.message ||
@@ -82,58 +91,46 @@ export default function WarehousesPage() {
           setIsLoading(false);
         }
       }
-    },
-    [setWarehouses]
-  );
-
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((query: string) => {
-        fetchWarehouses(query);
-      }, 500),
-    [fetchWarehouses]
-  );
-
-  useEffect(() => {
-    fetchWarehouses('');
-    return () => {
-      abortControllerRef.current?.abort();
-      debouncedSearch.cancel();
     };
-  }, [fetchWarehouses, debouncedSearch]);
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      debouncedSearch(searchQuery);
-    } else {
-      fetchWarehouses('');
-    }
-  }, [searchQuery, debouncedSearch, fetchWarehouses]);
+    // Дебаунсим вызов loadWarehouses
+    const debouncedLoad = debounce((query: string) => {
+      loadWarehouses(query);
+    }, 500);
 
-  const filteredWarehouses = useMemo(
-    () =>
-      warehouses.filter(
-        (w) =>
-          (selectedCategory === 'all' || w.category === selectedCategory) &&
-          w.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [warehouses, selectedCategory, searchQuery]
-  );
+    // Запускаем с учётом текущего searchQuery (если пусто, вернёт все склады)
+    debouncedLoad(searchQuery.trim());
 
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          warehouses
-            .map((w) => w.category)
-            .filter((c): c is string => !!c)
-        )
-      ),
-    [warehouses]
-  );
+    // При размонтировании / обновлении searchQuery отменяем
+    return () => {
+      debouncedLoad.cancel();
+      controller.abort();
+    };
+  }, [searchQuery, setWarehouses]);
+
+  // Фильтрация
+  const filteredWarehouses = useMemo(() => {
+    return warehouses.filter(
+      (w) =>
+        (selectedCategory === 'all' || w.category === selectedCategory) &&
+        w.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [warehouses, selectedCategory, searchQuery]);
+
+  // Формирование списка категорий
+  const categories = useMemo(() => {
+    return Array.from(
+      new Set(
+        warehouses
+          .map((w) => w.category)
+          .filter((c): c is string => !!c)
+      )
+    );
+  }, [warehouses]);
 
   return (
     <div className="app-container">
+      {/* Поле поиска */}
       <input
         className="input"
         type="text"
@@ -143,6 +140,7 @@ export default function WarehousesPage() {
         aria-label="Поиск складов"
       />
 
+      {/* Селект категорий */}
       <select
         className="select"
         value={selectedCategory}
@@ -157,38 +155,38 @@ export default function WarehousesPage() {
         ))}
       </select>
 
+      {/* Ошибки */}
       {error && (
         <div className="error-text">
           {error}
           <button
             className="button"
             style={{ marginTop: 8 }}
-            onClick={() => fetchWarehouses('')}
+            onClick={() => setSearchQuery('')} // Сбросим поиск, чтобы подгрузить все
           >
             Повторить попытку
           </button>
         </div>
       )}
 
+      {/* Список складов */}
       <div>
         {filteredWarehouses.map((warehouse) => (
           <WarehouseCard key={warehouse._id} warehouse={warehouse} />
         ))}
       </div>
 
+      {/* Индикатор загрузки */}
       {isLoading && (
         <div style={{ textAlign: 'center', padding: '16px' }}>
           <div className="spinner" />
         </div>
       )}
 
+      {/* Пустой список */}
       {!isLoading && filteredWarehouses.length === 0 && !error && (
         <div
-          style={{
-            textAlign: 'center',
-            padding: '16px',
-            color: 'var(--hint-color)',
-          }}
+          style={{ textAlign: 'center', padding: '16px', color: 'var(--hint-color)' }}
         >
           Склады не найдены
         </div>
