@@ -29,7 +29,7 @@ export default function ProductPage() {
     fetchWarehouseData();
   }, [warehouseId]);
 
-  // Загрузка категорий продуктов
+  // Загрузка категорий продуктовjj
   useEffect(() => {
     const fetchProductCategories = async () => {
       try {
