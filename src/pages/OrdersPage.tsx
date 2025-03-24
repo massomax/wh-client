@@ -9,8 +9,8 @@ interface Warehouse {
 
 interface Order {
   _id: string;
-  warehouse: Warehouse;
-  product: {
+  warehouse?: Warehouse; // Сделаем поле необязательным, чтобы избежать ошибок
+  product?: {
     _id: string;
     name: string;
   };
@@ -71,7 +71,7 @@ export default function OrdersPage() {
     const newStatus = prompt('Введите новый статус заказа:', order.status);
     if (!newStatus) return;
     try {
-      const response = await api.patch(`/api/orders/${order.warehouse._id}/${order._id}/status`, {
+      const response = await api.patch(`/api/orders/${order.warehouse?._id}/${order._id}/status`, {
         newStatus,
       });
       setOrders(prev =>
@@ -85,7 +85,7 @@ export default function OrdersPage() {
   const handleDeleteOrder = async (order: Order) => {
     if (!window.confirm('Вы уверены, что хотите удалить этот заказ?')) return;
     try {
-      await api.delete(`/api/orders/${order.warehouse._id}/${order._id}`);
+      await api.delete(`/api/orders/${order.warehouse?._id}/${order._id}`);
       setOrders(prev => prev.filter(o => o._id !== order._id));
     } catch (err: any) {
       alert(err.response?.data?.message || 'Ошибка удаления заказа');
@@ -144,8 +144,12 @@ export default function OrdersPage() {
             orders.map(order => (
               <div key={order._id} className="card order-card">
                 <div><strong>Заказ ID:</strong> {order._id}</div>
-                <div><strong>Склад:</strong> {order.warehouse.name}</div>
-                <div><strong>Товар:</strong> {order.product.name}</div>
+                <div>
+                  <strong>Склад:</strong> {order.warehouse?.name || 'Неизвестно'}
+                </div>
+                <div>
+                  <strong>Товар:</strong> {order.product?.name || 'Неизвестно'}
+                </div>
                 <div><strong>Количество:</strong> {order.quantity}</div>
                 <div><strong>Статус:</strong> {order.status}</div>
                 {order.updatedAt && (
