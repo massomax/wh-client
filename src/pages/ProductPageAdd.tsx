@@ -140,6 +140,8 @@ export default function ProductPageAdd({
             )}
             <div className="product-item-content">
               <div className="card-title">{product.name}</div>
+              <div className="card-subtitle">Остаток: {product.quantity}</div>
+
   
               <div style={{ marginTop: '8px' }}>
                 <div className="product-quantity-controls">
