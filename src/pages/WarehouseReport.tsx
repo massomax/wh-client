@@ -31,8 +31,8 @@ export default function WarehouseReport() {
 
   return (
     <div className="app-container warehouse-report-container">
-      <LogoutButton />
       <Header title="Отчёт по всем складам" />
+      <LogoutButton />
 
       <p className="report-description">
         Нажмите кнопку ниже, чтобы сгенерировать и скачать Excel-отчёт по всем продуктам.
