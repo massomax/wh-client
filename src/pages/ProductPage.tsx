@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ProductPageSub from './ProductPageSub';
 import ProductPageAdd from './ProductPageAdd';
 import { api } from '../api/client';
 import { Warehouse } from '../types/warehouse';
 import LogoutButton from '../components/LogoutButton';
 import Header from '../components/Header';
+import ErrorBlock from '../components/ui/ErrorBlock';
 
 type Mode = 'sub' | 'add';
 
@@ -17,6 +18,7 @@ export default function ProductPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [productCategories, setProductCategories] = useState<string[]>([]);
   const [notFound, setNotFound] = useState(false);
+  const [noAccess, setNoAccess] = useState(false);
 
   useEffect(() => {
     const fetchWarehouseData = async () => {
@@ -24,9 +26,13 @@ export default function ProductPage() {
         const response = await api.get<Warehouse>(`/api/warehouses/${warehouseId}`);
         setWarehouseName(response.data.name);
         setNotFound(false);
+        setNoAccess(false);
       } catch (err: any) {
-        setWarehouseName('Неизвестный склад');
         if (err.status === 404) {
+          setNotFound(true);
+        } else if (err.status === 403) {
+          setNoAccess(true);
+        } else {
           setNotFound(true);
         }
       }
@@ -54,54 +60,65 @@ export default function ProductPage() {
     fetchProductCategories();
   }, [warehouseId]);
 
+  if (notFound) {
+    return (
+      <div className="app-container">
+        <Header title="Ошибка" showBackButton />
+        <ErrorBlock message="Склад не найден или был удалён." />
+      </div>
+    );
+  }
+
+  if (noAccess) {
+    return (
+      <div className="app-container">
+        <Header title="Нет доступа" showBackButton />
+        <ErrorBlock message="У вас нет доступа к этому складу." />
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <LogoutButton />
-
       <Header title={warehouseName} />
 
-      if (notFound) return <Navigate to="/404" />;
+      <div style={{ margin: '16px 0' }}>
+        <input
+          className="input"
+          type="text"
+          placeholder="Поиск по названию..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Поиск"
+        />
+        <select
+          className="select"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          aria-label="Выбор категории"
+        >
+          <option value="all">Все категории</option>
+          {productCategories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {!notFound && (
-        <>
-          <div style={{ margin: '16px 0' }}>
-            <input
-              className="input"
-              type="text"
-              placeholder="Поиск по названию..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Поиск"
-            />
-            <select
-              className="select"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              aria-label="Выбор категории"
-            >
-              <option value="all">Все категории</option>
-              {productCategories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {mode === 'sub' ? (
-            <ProductPageSub
-              warehouseId={warehouseId!}
-              searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-            />
-          ) : (
-            <ProductPageAdd
-              warehouseId={warehouseId!}
-              searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-            />
-          )}
-        </>
+      {mode === 'sub' ? (
+        <ProductPageSub
+          warehouseId={warehouseId!}
+          searchQuery={searchQuery}
+          selectedCategory={selectedCategory}
+        />
+      ) : (
+        <ProductPageAdd
+          warehouseId={warehouseId!}
+          searchQuery={searchQuery}
+          selectedCategory={selectedCategory}
+        />
       )}
     </div>
   );
