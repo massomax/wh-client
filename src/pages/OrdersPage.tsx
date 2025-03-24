@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 interface Warehouse {
   _id: string;
   name: string;
+  address?: string;
 }
 
 type OrderStatus = 'Ожидает Заказа' | 'Заказано';
@@ -12,7 +13,8 @@ type OrderStatus = 'Ожидает Заказа' | 'Заказано';
 interface Order {
   _id: string;
   productName: string;
-  warehouse: string; // ID склада
+  // warehouse может быть либо строкой (ID), либо объектом Warehouse
+  warehouse: string | Warehouse;
   status: OrderStatus;
   createdAt: string;
   statusChangedAt: string;
@@ -67,7 +69,6 @@ export default function OrdersPage() {
   };
 
   const handleUpdateStatus = async (order: Order) => {
-    // Вместо prompt можно реализовать более удобный селект/модальное окно
     const newStatus = prompt('Введите новый статус заказа:', order.status);
     if (!newStatus || (newStatus !== 'Ожидает Заказа' && newStatus !== 'Заказано')) {
       alert('Допустимые значения: "Ожидает Заказа" или "Заказано"');
@@ -75,7 +76,7 @@ export default function OrdersPage() {
     }
     try {
       const response = await api.patch(
-        `/api/orders/${order.warehouse}/${order._id}/status`,
+        `/api/orders/${typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id}/${order._id}/status`,
         { newStatus }
       );
       setOrders(prev =>
@@ -89,17 +90,22 @@ export default function OrdersPage() {
   const handleDeleteOrder = async (order: Order) => {
     if (!window.confirm('Вы уверены, что хотите удалить этот заказ?')) return;
     try {
-      await api.delete(`/api/orders/${order.warehouse}/${order._id}`);
+      await api.delete(
+        `/api/orders/${typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id}/${order._id}`
+      );
       setOrders(prev => prev.filter(o => o._id !== order._id));
     } catch (err: any) {
       alert(err.response?.data?.message || 'Ошибка удаления заказа');
     }
   };
 
-  // Помощь в получении названия склада по его ID
-  const getWarehouseName = (warehouseId: string) => {
-    const warehouse = warehouses.find(w => w._id === warehouseId);
-    return warehouse ? warehouse.name : warehouseId;
+  // Функция для получения названия склада, независимо от того, приходит объект или строка
+  const getWarehouseName = (warehouse: string | Warehouse) => {
+    if (typeof warehouse === 'object' && warehouse !== null) {
+      return warehouse.name;
+    }
+    const found = warehouses.find(w => w._id === warehouse);
+    return found ? found.name : warehouse;
   };
 
   return (
