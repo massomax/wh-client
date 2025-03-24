@@ -4,6 +4,7 @@ import ProductPageSub from './ProductPageSub';
 import ProductPageAdd from './ProductPageAdd';
 import { api } from '../api/client';
 import { Warehouse } from '../types/warehouse';
+import LogoutButton from '../components/LogoutButton';
 
 type Mode = 'sub' | 'add';
 
@@ -55,6 +56,8 @@ export default function ProductPage() {
   return (
     <div className="app-container">
       {/* Шапка */}
+            <LogoutButton />
+      
       <div className="header">
         <button className="back-button" onClick={() => navigate(-1)}>
           ← Назад

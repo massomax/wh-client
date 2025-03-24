@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import { Warehouse } from '../types/warehouse';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import debounce from 'lodash.debounce';
+import LogoutButton  from '../components/LogoutButton'
 
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -117,6 +118,7 @@ export default function WarehousesPage() {
 
   return (
     <div className="app-container">
+      <LogoutButton />
       <input
         className="input"
         type="text"

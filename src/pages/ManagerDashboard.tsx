@@ -1,5 +1,6 @@
 // ManagerDashboard.tsx
 import { useNavigate } from 'react-router-dom';
+import LogoutButton from '../components/LogoutButton';
 
 export default function ManagerDashboard() {
   const navigate = useNavigate();
@@ -7,6 +8,7 @@ export default function ManagerDashboard() {
   return (
     <div className="app-container">
       <h2>Панель управления менеджера</h2>
+            <LogoutButton />   
       <div className="button-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button className="button" onClick={() => navigate('/register-employee')}>
           Зарегистрировать нового сотрудника
