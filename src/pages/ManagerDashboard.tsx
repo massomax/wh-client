@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import LogoutButton from '../components/LogoutButton';
+import Header from '../components/Header';
 
 export default function ManagerDashboard() {
   const navigate = useNavigate();
 
   return (
     <div className="app-container">
-      <h2>Панель управления менеджера</h2>
-            <LogoutButton />   
+      <LogoutButton />
+
+      <Header title="Панель менеджера" showBackButton={false} />
+
       <div className="button-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button className="button" onClick={() => navigate('/register-employee')}>
           Зарегистрировать нового сотрудника
@@ -22,7 +25,7 @@ export default function ManagerDashboard() {
           Просмотр действий на складах
         </button>
         <button className="button" onClick={() => navigate('/warehouse-report')}>
-          Отчет по всем складам
+          Отчёт по всем складам
         </button>
       </div>
     </div>

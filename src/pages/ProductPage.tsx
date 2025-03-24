@@ -1,42 +1,44 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import ProductPageSub from './ProductPageSub';
 import ProductPageAdd from './ProductPageAdd';
 import { api } from '../api/client';
 import { Warehouse } from '../types/warehouse';
 import LogoutButton from '../components/LogoutButton';
+import Header from '../components/Header';
 
 type Mode = 'sub' | 'add';
 
 export default function ProductPage() {
   const { warehouseId } = useParams<{ warehouseId: string }>();
-  const navigate = useNavigate();
-  const [mode, setMode] = useState<Mode>('sub');
+  const [mode] = useState<Mode>('sub');
   const [warehouseName, setWarehouseName] = useState('Загрузка...');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [productCategories, setProductCategories] = useState<string[]>([]);
+  const [notFound, setNotFound] = useState(false);
 
-  // Загрузка данных склада
   useEffect(() => {
     const fetchWarehouseData = async () => {
       try {
         const response = await api.get<Warehouse>(`/api/warehouses/${warehouseId}`);
         setWarehouseName(response.data.name);
-      } catch (err) {
+        setNotFound(false);
+      } catch (err: any) {
         setWarehouseName('Неизвестный склад');
+        if (err.status === 404) {
+          setNotFound(true);
+        }
       }
     };
     fetchWarehouseData();
   }, [warehouseId]);
 
-  // Загрузка категорий продуктовjj
   useEffect(() => {
     const fetchProductCategories = async () => {
       try {
         const response = await api.get(`/api/products/${warehouseId}`);
         const products = response.data || [];
-        // Извлекаем уникальные непустые категории
         const categories: string[] = Array.from(
           new Set(
             products
@@ -46,7 +48,6 @@ export default function ProductPage() {
         );
         setProductCategories(categories);
       } catch (err) {
-        // При ошибке оставляем список категорий пустым
         setProductCategories([]);
       }
     };
@@ -55,76 +56,52 @@ export default function ProductPage() {
 
   return (
     <div className="app-container">
-      {/* Шапка */}
-            <LogoutButton />
-      
-      <div className="header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ← Назад
-        </button>
-        <div className="header-title">{warehouseName}</div>
-        <div className="button-group">
-          <button
-            className="button"
-            style={{
-              backgroundColor: mode === 'sub' ? 'var(--button-color)' : 'var(--section-separator-color)',
-              color: mode === 'sub' ? 'var(--button-text-color)' : 'var(--text-color)',
-            }}
-            onClick={() => setMode('sub')}
-          >
-            Списать
-          </button>
-          <button
-            className="button"
-            style={{
-              backgroundColor: mode === 'add' ? 'var(--button-color)' : 'var(--section-separator-color)',
-              color: mode === 'add' ? 'var(--button-text-color)' : 'var(--text-color)',
-            }}
-            onClick={() => setMode('add')}
-          >
-            Добавить
-          </button>
-        </div>
-      </div>
+      <LogoutButton />
 
-      {/* Фильтры */}
-      <div style={{ margin: '16px 0' }}>
-        <input
-          className="input"
-          type="text"
-          placeholder="Поиск по названию..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label="Поиск"
-        />
-        <select
-          className="select"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          aria-label="Выбор категории"
-        >
-          <option value="all">Все категории</option>
-          {productCategories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Header title={warehouseName} />
 
-      {/* Основной контент */}
-      {mode === 'sub' ? (
-        <ProductPageSub 
-          warehouseId={warehouseId!}
-          searchQuery={searchQuery}
-          selectedCategory={selectedCategory}
-        />
-      ) : (
-        <ProductPageAdd 
-          warehouseId={warehouseId!}
-          searchQuery={searchQuery}
-          selectedCategory={selectedCategory}
-        />
+      if (notFound) return <Navigate to="/404" />;
+
+      {!notFound && (
+        <>
+          <div style={{ margin: '16px 0' }}>
+            <input
+              className="input"
+              type="text"
+              placeholder="Поиск по названию..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Поиск"
+            />
+            <select
+              className="select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              aria-label="Выбор категории"
+            >
+              <option value="all">Все категории</option>
+              {productCategories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {mode === 'sub' ? (
+            <ProductPageSub
+              warehouseId={warehouseId!}
+              searchQuery={searchQuery}
+              selectedCategory={selectedCategory}
+            />
+          ) : (
+            <ProductPageAdd
+              warehouseId={warehouseId!}
+              searchQuery={searchQuery}
+              selectedCategory={selectedCategory}
+            />
+          )}
+        </>
       )}
     </div>
   );

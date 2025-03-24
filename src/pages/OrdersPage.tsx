@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
-import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import LogoutButton from '../components/LogoutButton';
+import Loader from '../components/ui/Loader';
+import ErrorBlock from '../components/ui/ErrorBlock';
+import EmptyState from '../components/ui/EmptyState';
 
 interface Warehouse {
   _id: string;
@@ -13,7 +17,6 @@ type OrderStatus = 'Ожидает Заказа' | 'Заказано';
 interface Order {
   _id: string;
   productName: string;
-  // warehouse может быть либо строкой (ID), либо объектом Warehouse
   warehouse: string | Warehouse;
   status: OrderStatus;
   createdAt: string;
@@ -21,21 +24,21 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Фильтры
   const [filterWarehouseId, setFilterWarehouseId] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-
-  // Список складов для фильтрации и отображения названия склада
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
-  // Состояния для редактирования статуса заказа
   const [editingStatusOrderId, setEditingStatusOrderId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<OrderStatus>('Ожидает Заказа');
+
+  useEffect(() => {
+    fetchWarehouses();
+    fetchOrders();
+  }, []);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -57,19 +60,11 @@ export default function OrdersPage() {
     try {
       const response = await api.get('/api/warehouses');
       setWarehouses(response.data);
-    } catch (err: any) {
-      // Можно оставить список пустым
-    }
+    } catch {}
   };
-
-  useEffect(() => {
-    fetchWarehouses();
-    fetchOrders();
-  }, []);
 
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // При смене фильтров отменяем режим редактирования статуса
     setEditingStatusOrderId(null);
     fetchOrders();
   };
@@ -82,9 +77,7 @@ export default function OrdersPage() {
         `/api/orders/${warehouseId}/${order._id}/status`,
         { newStatus }
       );
-      setOrders(prev =>
-        prev.map(o => (o._id === order._id ? response.data : o))
-      );
+      setOrders(prev => prev.map(o => (o._id === order._id ? response.data : o)));
       setEditingStatusOrderId(null);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Ошибка обновления статуса заказа');
@@ -95,7 +88,17 @@ export default function OrdersPage() {
     setEditingStatusOrderId(null);
   };
 
-  // Функция для получения названия склада, независимо от того, приходит объект или строка
+  const handleDeleteOrder = async (order: Order) => {
+    if (!window.confirm('Вы уверены, что хотите удалить этот заказ?')) return;
+    try {
+      const warehouseId = typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id;
+      await api.delete(`/api/orders/${warehouseId}/${order._id}`);
+      setOrders(prev => prev.filter(o => o._id !== order._id));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Ошибка удаления заказа');
+    }
+  };
+
   const getWarehouseName = (warehouse: string | Warehouse) => {
     if (typeof warehouse === 'object' && warehouse !== null) {
       return warehouse.name;
@@ -105,11 +108,9 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="app-container orders-container">
-      <h2>Список заказов</h2>
-      <button type="button" className="button back-button" onClick={() => navigate(-1)}>
-        Вернуться назад
-      </button>
+    <div className="app-container">
+      <LogoutButton />
+      <Header title="Список заказов" />
 
       <form className="orders-filter-form" onSubmit={handleFilterSubmit}>
         <div className="filter-group">
@@ -146,87 +147,64 @@ export default function OrdersPage() {
         </button>
       </form>
 
-      {loading ? (
-        <div>Загрузка заказов...</div>
-      ) : error ? (
-        <div className="error-text">{error}</div>
-      ) : (
+      {loading && <Loader />}
+      {!loading && error && <ErrorBlock message={error} />}
+      {!loading && !error && orders.length === 0 && <EmptyState message="Заказы не найдены" />}
+
+      {!loading && !error && orders.length > 0 && (
         <div className="orders-list">
-          {orders.length === 0 ? (
-            <div>Заказы не найдены</div>
-          ) : (
-            orders.map(order => (
-              <div key={order._id} className="card order-card">
-                <div><strong>Заказ ID:</strong> {order._id}</div>
-                <div>
-                  <strong>Товар:</strong> {order.productName || 'Неизвестно'}
-                </div>
-                <div>
-                  <strong>Склад:</strong> {getWarehouseName(order.warehouse)}
-                </div>
-                <div>
-                  <strong>Статус:</strong>{' '}
-                  {editingStatusOrderId === order._id ? (
-                    <>
-                      <select
-                        className="select"
-                        value={newStatus}
-                        onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
-                      >
-                        <option value="Ожидает Заказа">Ожидает Заказа</option>
-                        <option value="Заказано">Заказано</option>
-                      </select>
+          {orders.map(order => (
+            <div key={order._id} className="card order-card">
+              <div><strong>Заказ ID:</strong> {order._id}</div>
+              <div><strong>Товар:</strong> {order.productName || 'Неизвестно'}</div>
+              <div><strong>Склад:</strong> {getWarehouseName(order.warehouse)}</div>
+              <div>
+                <strong>Статус:</strong>{' '}
+                {editingStatusOrderId === order._id ? (
+                  <>
+                    <select
+                      className="select"
+                      value={newStatus}
+                      onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
+                    >
+                      <option value="Ожидает Заказа">Ожидает Заказа</option>
+                      <option value="Заказано">Заказано</option>
+                    </select>
+                    <div className="order-actions">
                       <button type="button" className="button" onClick={() => handleSaveStatus(order)}>
                         Сохранить
                       </button>
                       <button type="button" className="button button-destructive" onClick={handleCancelEdit}>
                         Отмена
                       </button>
-                    </>
-                  ) : (
-                    <>
-                      {order.status}
-                      <button
-                        type="button"
-                        className="button"
-                        onClick={() => {
-                          setEditingStatusOrderId(order._id);
-                          setNewStatus(order.status);
-                        }}
-                        style={{ marginLeft: '8px' }}
-                      >
-                        Обновить статус
-                      </button>
-                    </>
-                  )}
-                </div>
-                <div>
-                  <strong>Создан:</strong> {new Date(order.createdAt).toLocaleString()}
-                </div>
-                <div>
-                  <strong>Изменен:</strong> {new Date(order.statusChangedAt).toLocaleString()}
-                </div>
-                <div className="order-actions">
-                  <button type="button" className="button button-destructive" onClick={() => {
-                    if(window.confirm('Вы уверены, что хотите удалить этот заказ?')) {
-                      // Удаление заказа
-                      (async () => {
-                        try {
-                          const warehouseId = typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id;
-                          await api.delete(`/api/orders/${warehouseId}/${order._id}`);
-                          setOrders(prev => prev.filter(o => o._id !== order._id));
-                        } catch (err: any) {
-                          alert(err.response?.data?.message || 'Ошибка удаления заказа');
-                        }
-                      })();
-                    }
-                  }}>
-                    Удалить заказ
-                  </button>
-                </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {order.status}
+                    <button
+                      type="button"
+                      className="button"
+                      onClick={() => {
+                        setEditingStatusOrderId(order._id);
+                        setNewStatus(order.status);
+                      }}
+                      style={{ marginLeft: 8 }}
+                    >
+                      Обновить статус
+                    </button>
+                  </>
+                )}
               </div>
-            ))
-          )}
+              <div><strong>Создан:</strong> {new Date(order.createdAt).toLocaleString()}</div>
+              <div><strong>Изменен:</strong> {new Date(order.statusChangedAt).toLocaleString()}</div>
+              <div className="order-actions">
+                <button type="button" className="button button-destructive" onClick={() => handleDeleteOrder(order)}>
+                  Удалить заказ
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

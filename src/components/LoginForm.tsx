@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { useLocation, useNavigate } from 'react-router-dom';
+import ErrorBlock from './ui/ErrorBlock';
 
 export default function LoginForm() {
   const [username, setUsername] = useState('');
@@ -102,9 +103,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <label htmlFor="username" className="label">
-          Имя пользователя
-        </label>
+        <label htmlFor="username" className="label">Имя пользователя</label>
         <input
           id="username"
           type="text"
@@ -115,13 +114,11 @@ export default function LoginForm() {
           autoComplete="username"
           aria-label="Имя пользователя"
         />
-        {errors.username && <p className="error-text">{errors.username}</p>}
+        {errors.username && <ErrorBlock message={errors.username} />}
       </div>
-
+  
       <div>
-        <label htmlFor="password" className="label">
-          Пароль
-        </label>
+        <label htmlFor="password" className="label">Пароль</label>
         <input
           id="password"
           type="password"
@@ -132,7 +129,7 @@ export default function LoginForm() {
           autoComplete="current-password"
           aria-label="Пароль"
         />
-
+  
         <div className="password-strength">
           {[1, 2, 3, 4].map((level) => (
             <div
@@ -141,16 +138,12 @@ export default function LoginForm() {
             />
           ))}
         </div>
-
-        {errors.password && <p className="error-text">{errors.password}</p>}
+  
+        {errors.password && <ErrorBlock message={errors.password} />}
       </div>
-
-      {errors.server && (
-        <div className="error-text" style={{ border: '1px solid var(--destructive-text-color)', padding: 8 }}>
-          {errors.server}
-        </div>
-      )}
-
+  
+      {errors.server && <ErrorBlock message={errors.server} />}
+  
       <button
         type="submit"
         disabled={!isFormValid || isLoading}

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LoginForm from '../components/LoginForm';
+import Header from '../components/Header';
 
 export default function LoginPage() {
   const location = useLocation();
@@ -15,11 +16,9 @@ export default function LoginPage() {
   }, [location]);
 
   return (
-    <div className="app-container" style={{ maxWidth: 400, margin: 'auto' }}>
-      <div className="card">
-        <h2 className="card-title" style={{ textAlign: 'center' }}>
-          Вход в аккаунт
-        </h2>
+    <div className="app-container login-page-container">
+      <Header title="Вход в аккаунт" showBackButton={false} />
+      <div className="card login-card">
         <LoginForm />
       </div>
     </div>

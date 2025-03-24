@@ -1,18 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function LogoutButton() {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-
-    localStorage.removeItem('authToken');
-
-    navigate('/login', { replace: true });
-  };
+    const { logout } = useAuth();
 
   return (
-    <button className="button" onClick={handleLogout}>
-      Выйти
-    </button>
+    <button className="button" onClick={logout}>Выйти</button>
   );
 }

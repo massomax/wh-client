@@ -11,14 +11,16 @@ import WarehouseActions from './pages/WarehouseActions';
 import WarehouseReport from './pages/WarehouseReport';
 import ProtectedManagerRoute from './components/ProtectedManagerRoute';
 import { JSX } from 'react';
+import { useAuth } from './hooks/useAuth';
+import NotFoundPage from './pages/NotFoundPage';
 import './telegramTheme.css';
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('authToken');
+  const { isLoggedIn } = useAuth();
   const location = useLocation();
 
-  return token 
-    ? children 
+  return isLoggedIn
+    ? children
     : <Navigate to="/login" replace state={{ from: location }} />;
 };
 
@@ -67,6 +69,10 @@ const router = createBrowserRouter([
     path: '/login',
     element: <LoginPage />,
     errorElement: <ErrorPage />
+  },
+  {
+    path: '*',
+    element: <NotFoundPage />
   }
 ]);
 

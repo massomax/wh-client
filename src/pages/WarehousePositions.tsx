@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
-import { useNavigate } from 'react-router-dom';
+import ErrorBlock from '../components/ui/ErrorBlock';
+import EmptyState from '../components/ui/EmptyState';
+import Loader from '../components/ui/Loader';
+import LogoutButton from '../components/LogoutButton';
+import Header from '../components/Header';
 
 interface Warehouse {
   _id: string;
@@ -19,7 +23,6 @@ interface Product {
 }
 
 export default function WarehousePositions() {
-  const navigate = useNavigate();
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
   const [products, setProducts] = useState<Product[]>([]);
@@ -165,13 +168,11 @@ export default function WarehousePositions() {
 
   return (
     <div className="app-container">
-      <h2>Управление позициями складов</h2>
-      <button className="button back-button" onClick={() => navigate(-1)}>
-        Вернуться назад
-      </button>
-
-      {error && <div className="error-text">{error}</div>}
-
+      <Header title="Управление позициями складов" />
+      <LogoutButton />
+  
+      {error && <ErrorBlock message={error} />}
+  
       <div className="select-container">
         <label htmlFor="warehouse-select" className="label">Выберите склад:</label>
         <select
@@ -187,7 +188,7 @@ export default function WarehousePositions() {
           ))}
         </select>
       </div>
-
+  
       <h3>Добавить новый товар</h3>
       <form onSubmit={handleAddProduct} className="form-add-product">
         <input
@@ -227,99 +228,92 @@ export default function WarehousePositions() {
           accept="image/*"
           onChange={(e) => setNewProduct({ ...newProduct, photo: e.target.files ? e.target.files[0] : null })}
         />
-        {addError && <div className="error-text">{addError}</div>}
+        {addError && <ErrorBlock message={addError} />}
         <button type="submit" className="button" disabled={isAdding}>
           {isAdding ? 'Создание...' : 'Создать товар'}
         </button>
       </form>
-
+  
       <h3>Список товаров</h3>
-      {loadingProducts ? (
-        <div>Загрузка товаров...</div>
-      ) : (
-        <div>
-          {products.length === 0 ? (
-            <div>Товары не найдены</div>
-          ) : (
-            products.map((product) => (
-              <div key={product._id} className="card product-card">
-                {editingProductId === product._id ? (
-                  <form onSubmit={handleEditProduct} className="form-edit-product">
-                    <input
-                      className="input"
-                      type="text"
-                      value={editProduct.name}
-                      onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
-                      required
-                    />
-                    <input
-                      className="input"
-                      type="number"
-                      value={editProduct.quantity}
-                      onChange={(e) => setEditProduct({ ...editProduct, quantity: Number(e.target.value) })}
-                      required
-                    />
-                    <input
-                      className="input"
-                      type="number"
-                      value={editProduct.criticalValue}
-                      onChange={(e) => setEditProduct({ ...editProduct, criticalValue: Number(e.target.value) })}
-                      required
-                    />
-                    <input
-                      className="input"
-                      type="text"
-                      value={editProduct.category}
-                      onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
-                    />
-                    <input
-                      className="input"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setEditProduct({ ...editProduct, photo: e.target.files ? e.target.files[0] : null })}
-                    />
-                    {editError && <div className="error-text">{editError}</div>}
-                    <div className="product-actions">
-                      <button type="submit" className="button" disabled={isEditing}>
-                        {isEditing ? 'Сохранение...' : 'Сохранить'}
-                      </button>
-                      <button
-                        type="button"
-                        className="button button-destructive"
-                        onClick={() => setEditingProductId(null)}
-                      >
-                        Отмена
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="product-details">
-                    <div><strong>{product.name}</strong></div>
-                    <div>Количество: {product.quantity}</div>
-                    <div>Критическое значение: {product.criticalValue}</div>
-                    <div>Категория: {product.category}</div>
-                    {product.photo && (
-                      <img
-                        src={product.photo.url}
-                        alt={product.name}
-                        className="product-image"
-                      />
-                    )}
-                    <div className="product-actions">
-                      <button className="button" onClick={() => startEditing(product)}>
-                        Редактировать
-                      </button>
-                      <button className="button button-destructive" onClick={() => handleDeleteProduct(product._id)}>
-                        Удалить
-                      </button>
-                    </div>
-                  </div>
-                )}
+      {loadingProducts && <Loader />}
+      {!loadingProducts && products.length === 0 && <EmptyState message="Товары не найдены" />}
+  
+      {!loadingProducts && products.map((product) => (
+        <div key={product._id} className="card product-card">
+          {editingProductId === product._id ? (
+            <form onSubmit={handleEditProduct} className="form-edit-product">
+              <input
+                className="input"
+                type="text"
+                value={editProduct.name}
+                onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
+                required
+              />
+              <input
+                className="input"
+                type="number"
+                value={editProduct.quantity}
+                onChange={(e) => setEditProduct({ ...editProduct, quantity: Number(e.target.value) })}
+                required
+              />
+              <input
+                className="input"
+                type="number"
+                value={editProduct.criticalValue}
+                onChange={(e) => setEditProduct({ ...editProduct, criticalValue: Number(e.target.value) })}
+                required
+              />
+              <input
+                className="input"
+                type="text"
+                value={editProduct.category}
+                onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
+              />
+              <input
+                className="input"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setEditProduct({ ...editProduct, photo: e.target.files ? e.target.files[0] : null })}
+              />
+              {editError && <ErrorBlock message={editError} />}
+              <div className="product-actions">
+                <button type="submit" className="button" disabled={isEditing}>
+                  {isEditing ? 'Сохранение...' : 'Сохранить'}
+                </button>
+                <button
+                  type="button"
+                  className="button button-destructive"
+                  onClick={() => setEditingProductId(null)}
+                >
+                  Отмена
+                </button>
               </div>
-            ))
+            </form>
+          ) : (
+            <div className="product-details">
+              <div><strong>{product.name}</strong></div>
+              <div>Количество: {product.quantity}</div>
+              <div>Критическое значение: {product.criticalValue}</div>
+              <div>Категория: {product.category}</div>
+              {product.photo && (
+                <img
+                  src={product.photo.url}
+                  alt={product.name}
+                  className="product-image"
+                />
+              )}
+              <div className="product-actions">
+                <button className="button" onClick={() => startEditing(product)}>
+                  Редактировать
+                </button>
+                <button className="button button-destructive" onClick={() => handleDeleteProduct(product._id)}>
+                  Удалить
+                </button>
+              </div>
+            </div>
           )}
         </div>
-      )}
+      ))}
     </div>
   );
 }

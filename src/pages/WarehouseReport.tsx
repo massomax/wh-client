@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { api } from '../api/client';
-import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import LogoutButton from '../components/LogoutButton';
+import ErrorBlock from '../components/ui/ErrorBlock';
 
 export default function WarehouseReport() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -11,11 +12,9 @@ export default function WarehouseReport() {
     setError('');
     setLoading(true);
     try {
-      // Запрос с указанием, что ожидается Blob-ответ
       const response = await api.get('/api/reports/products/export', {
         responseType: 'blob',
       });
-      // Создаём URL для Blob
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -32,16 +31,22 @@ export default function WarehouseReport() {
 
   return (
     <div className="app-container warehouse-report-container">
-      <h2>Отчёт по всем складам</h2>
-      <button type="button" className="button back-button" onClick={() => navigate(-1)}>
-        Вернуться назад
-      </button>
-      <p>
+      <LogoutButton />
+      <Header title="Отчёт по всем складам" />
+
+      <p className="report-description">
         Нажмите кнопку ниже, чтобы сгенерировать и скачать Excel-отчёт по всем продуктам.
         Отчёт группирует товары по названию и суммирует их количество на всех складах.
       </p>
-      {error && <div className="error-text">{error}</div>}
-      <button type="button" className="button" onClick={handleDownloadReport} disabled={loading}>
+
+      {error && <ErrorBlock message={error} />}
+
+      <button
+        type="button"
+        className="button download-button"
+        onClick={handleDownloadReport}
+        disabled={loading}
+      >
         {loading ? 'Генерация отчёта...' : 'Скачать отчёт'}
       </button>
     </div>

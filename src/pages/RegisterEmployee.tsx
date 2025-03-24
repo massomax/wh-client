@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { api } from '../api/client';
+import Header from '../components/Header';
+import LogoutButton from '../components/LogoutButton';
+import ErrorBlock from '../components/ui/ErrorBlock';
 
 export default function RegisterEmployee() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role] = useState('Сотрудник'); // По умолчанию регистрируется сотрудник
+  const [role] = useState('Сотрудник');
   const [message, setMessage] = useState('');
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -12,6 +15,8 @@ export default function RegisterEmployee() {
     try {
       await api.post('/auth/register', { username, password, role });
       setMessage('Сотрудник успешно зарегистрирован');
+      setUsername('');
+      setPassword('');
     } catch (err: any) {
       setMessage(err.response?.data?.message || 'Ошибка регистрации');
     }
@@ -19,9 +24,12 @@ export default function RegisterEmployee() {
 
   return (
     <div className="app-container">
-      <h2>Регистрация нового сотрудника</h2>
+      <LogoutButton />
+      <Header title="Регистрация сотрудника" />
+
       {message && <div className="error-text">{message}</div>}
-      <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      <form className="employee-form" onSubmit={handleRegister}>
         <input
           className="input"
           type="text"
@@ -38,6 +46,7 @@ export default function RegisterEmployee() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        {message && <ErrorBlock message={message} />}
         <button type="submit" className="button">Зарегистрировать</button>
       </form>
     </div>

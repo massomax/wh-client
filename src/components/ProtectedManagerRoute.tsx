@@ -1,12 +1,12 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { JSX } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 const ProtectedManagerRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('authToken');
-  const role = localStorage.getItem('userRole');
+  const { isLoggedIn, isManager } = useAuth();
   const location = useLocation();
 
-  return token && role === 'Менеджер'
+  return isLoggedIn && isManager
     ? children
     : <Navigate to="/login" replace state={{ from: location }} />;
 };

@@ -4,11 +4,14 @@ import { api } from '../api/client';
 import { Warehouse } from '../types/warehouse';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import debounce from 'lodash.debounce';
-import LogoutButton  from '../components/LogoutButton'
+import LogoutButton from '../components/LogoutButton';
+import Header from '../components/Header';
+import Loader from '../components/ui/Loader';
+import ErrorBlock from '../components/ui/ErrorBlock';
+import EmptyState from '../components/ui/EmptyState';
 
 const CACHE_TTL = 5 * 60 * 1000;
 
-/* Компонент карточки склада */
 const WarehouseCard = ({ warehouse }: { warehouse: Warehouse }) => {
   const navigate = useNavigate();
 
@@ -24,11 +27,7 @@ const WarehouseCard = ({ warehouse }: { warehouse: Warehouse }) => {
 };
 
 export default function WarehousesPage() {
-  const [warehouses, setWarehouses] = useLocalStorage<Warehouse[]>(
-    'warehouses',
-    [] as Warehouse[],
-    CACHE_TTL
-  );
+  const [warehouses, setWarehouses] = useLocalStorage<Warehouse[]>('warehouses', [] as Warehouse[], CACHE_TTL);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
@@ -54,29 +53,20 @@ export default function WarehousesPage() {
         setWarehouses(response.data);
       } catch (err: any) {
         if (err.name !== 'CanceledError' && !controller.signal.aborted) {
-          const errorMessage =
-            err.response?.data?.message ||
-            err.message ||
-            'Ошибка соединения с сервером';
+          const errorMessage = err.response?.data?.message || err.message || 'Ошибка соединения с сервером';
           setError(errorMessage);
           setWarehouses([]);
         }
       } finally {
-        // if (!controller.signal.aborted) {
-          setIsLoading(false);
-        // }
+        setIsLoading(false);
       }
     },
     [setWarehouses]
   );
 
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((query: string) => {
-        fetchWarehouses(query);
-      }, 500),
-    [fetchWarehouses]
-  );
+  const debouncedSearch = useMemo(() => debounce((query: string) => {
+    fetchWarehouses(query);
+  }, 500), [fetchWarehouses]);
 
   useEffect(() => {
     fetchWarehouses('');
@@ -108,9 +98,7 @@ export default function WarehousesPage() {
     () =>
       Array.from(
         new Set(
-          warehouses
-            .map((w) => w.category)
-            .filter((c): c is string => !!c)
+          warehouses.map((w) => w.category).filter((c): c is string => !!c)
         )
       ),
     [warehouses]
@@ -119,6 +107,8 @@ export default function WarehousesPage() {
   return (
     <div className="app-container">
       <LogoutButton />
+      <Header title="Список складов" showBackButton={false} />
+
       <input
         className="input"
         type="text"
@@ -142,36 +132,15 @@ export default function WarehousesPage() {
         ))}
       </select>
 
-      {error && (
-        <div className="error-text">
-          {error}
-          <button
-            className="button"
-            style={{ marginTop: 8 }}
-            onClick={() => fetchWarehouses('')}
-          >
-            Повторить попытку
-          </button>
-        </div>
+      {isLoading && <Loader />}
+      {error && <ErrorBlock message={error} />}
+      {!isLoading && !error && filteredWarehouses.length === 0 && (
+        <EmptyState message="Склады не найдены" />
       )}
 
-      <div>
-        {filteredWarehouses.map((warehouse) => (
-          <WarehouseCard key={warehouse._id} warehouse={warehouse} />
-        ))}
-      </div>
-
-      {isLoading && (
-        <div style={{ textAlign: 'center', padding: '16px' }}>
-          <div className="spinner" />
-        </div>
-      )}
-
-      {!isLoading && filteredWarehouses.length === 0 && !error && (
-        <div style={{ textAlign: 'center', padding: '16px', color: 'var(--hint-color)' }}>
-          Склады не найдены
-        </div>
-      )}
+      {!isLoading && !error && filteredWarehouses.map((warehouse) => (
+        <WarehouseCard key={warehouse._id} warehouse={warehouse} />
+      ))}
     </div>
   );
 }

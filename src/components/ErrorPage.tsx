@@ -1,24 +1,25 @@
-import { useRouteError } from 'react-router-dom'
+import { useRouteError } from 'react-router-dom';
+import Header from '../components/Header';
 
 export default function ErrorPage() {
-  const error = useRouteError() as any
-  
+  const error = useRouteError() as any;
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-red-600 mb-4">
-          {error.status || 'Ошибка'}
-        </h1>
-        <p className="text-xl text-gray-600 mb-4">
-          {error.statusText || error.message}
+    <div className="app-container error-page">
+      <Header title="Ошибка" showBackButton={false} />
+
+      <div className="error-content">
+        <h1 className="error-title">{error.status || 'Ошибка'}</h1>
+        <p className="error-message">
+          {error.statusText || error.message || 'Произошла неизвестная ошибка'}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="button"
         >
           Обновить страницу
         </button>
       </div>
     </div>
-  )
+  );
 }

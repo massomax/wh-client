@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { Product } from '../types/product';
 import { api } from '../api/client';
+import ErrorBlock from '../components/ui/ErrorBlock';
+import Loader from '../components/ui/Loader';
+import EmptyState from '../components/ui/EmptyState';
 
 type Props = {
   warehouseId: string;
@@ -112,12 +115,16 @@ export default function ProductPageSub({
 
   return (
     <div>
-      {error && <div className="error-text">{error}</div>}
-
-      {filteredProducts.map(product => {
+      {error && <ErrorBlock message={error} />}
+      {isLoading && <Loader />}
+      {!isLoading && !error && filteredProducts.length === 0 && (
+        <EmptyState message="Товары не найдены" />
+      )}
+  
+      {!isLoading && !error && filteredProducts.map(product => {
         const quantityValue = quantities[product._id] || 0;
         const isProductLoading = !!loadingProductIds[product._id];
-
+  
         return (
           <div key={product._id} className="card product-item">
             {product.photo?.url && (
@@ -130,7 +137,7 @@ export default function ProductPageSub({
             <div className="product-item-content">
               <div className="card-title">{product.name}</div>
               <div className="card-subtitle">Остаток: {product.quantity}</div>
-
+  
               <div className="product-quantity-controls">
                 <button
                   className="button"
@@ -139,7 +146,7 @@ export default function ProductPageSub({
                 >
                   -
                 </button>
-                
+  
                 <input
                   type="number"
                   className="input"
@@ -151,7 +158,7 @@ export default function ProductPageSub({
                   aria-label="Количество для списания"
                   disabled={isProductLoading}
                 />
-                
+  
                 <button
                   className="button"
                   onClick={() => handleQuantityChange(product._id, quantityValue + 1)}
@@ -160,7 +167,7 @@ export default function ProductPageSub({
                   +
                 </button>
               </div>
-
+  
               <input
                 type="range"
                 className="range-slider"
@@ -171,7 +178,7 @@ export default function ProductPageSub({
                 aria-label="Слайдер количества"
                 disabled={isProductLoading || disableSlider}
               />
-
+  
               <button
                 className="button button-destructive"
                 onClick={() => handleSubtract(product._id)}
@@ -183,13 +190,6 @@ export default function ProductPageSub({
           </div>
         );
       })}
-
-      {isLoading && <div style={{ textAlign: 'center', padding: '16px' }}>Загрузка...</div>}
-      {!isLoading && filteredProducts.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '16px', color: 'var(--hint-color)' }}>
-          Товары не найдены
-        </div>
-      )}
     </div>
   );
 }

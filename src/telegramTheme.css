@@ -1,319 +1,380 @@
 :root {
-    /* Telegram theme variables с fallback-значениями на случай, если что-то не придёт */
-    --bg-color: var(--tg-theme-bg-color, #ffffff);
-    --text-color: var(--tg-theme-text-color, #000000);
-    --hint-color: var(--tg-theme-hint-color, #a8a8a8);
-    --link-color: var(--tg-theme-link-color, #3c7be6);
-    --button-color: var(--tg-theme-button-color, #2e7d32);
-    --button-text-color: var(--tg-theme-button-text-color, #ffffff);
-    --secondary-bg-color: var(--tg-theme-secondary-bg-color, #f9f9f9);
-    --header-bg-color: var(--tg-theme-header-bg-color, #ffffff);
-    --bottom-bar-bg-color: var(--tg-theme-bottom-bar-bg-color, #ffffff);
-    --accent-text-color: var(--tg-theme-accent-text-color, #3c7be6);
-    --section-bg-color: var(--tg-theme-section-bg-color, #ffffff);
-    --section-header-text-color: var(--tg-theme-section-header-text-color, #000000);
-    --section-separator-color: var(--tg-theme-section-separator-color, #e0e0e0);
-    --subtitle-text-color: var(--tg-theme-subtitle-text-color, #666666);
-    --destructive-text-color: var(--tg-theme-destructive-text-color, #ff3b30);
-  }
-  
-  /* Базовые стили для body и общего контейнера */
-  html, body {
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  }
-  
-  /* Контейнер приложения */
-  .app-container {
-    padding: 16px;
-  }
-  
-  /* Шапка страницы */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--header-bg-color);
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--section-separator-color);
-  }
-  
-  .header-title {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .header .button-group button {
-    margin-left: 8px;
-  }
-  
-  .header button,
-  .button {
-    background: var(--button-color);
-    color: var(--button-text-color);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: opacity 0.2s ease;
-  }
-  
-  /* Для кнопок-ссылок или "Назад" можно использовать прозрачный фон */
-  .header .back-button {
-    background: none;
-    color: var(--link-color);
-  }
-  
-  /* Ховер-эффект */
-  .button:hover,
-  .header button:hover {
-    opacity: 0.9;
-  }
-  
-  /* Для деструктивных действий */
-  .button-destructive {
-    background-color: transparent;
-    color: var(--destructive-text-color);
-    border: 1px solid var(--destructive-text-color);
-  }
-  
-  /* Карточки */
-  .card {
-    background-color: var(--secondary-bg-color);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  
-  .card-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  
-  .card-subtitle {
-    font-size: 14px;
-    color: var(--subtitle-text-color);
-    margin-bottom: 4px;
-  }
-  
-  /* Инпуты и селекты */
-  .input,
-  .select {
-    display: block;
-    width: 100%;
-    margin-bottom: 8px;
-    padding: 8px;
-    border: 1px solid var(--section-separator-color);
-    border-radius: 4px;
-    background-color: var(--section-bg-color);
-    color: var(--text-color);
-    font-size: 14px;
-  }
-  
-  /* Ошибки */
-  .error-text {
-    color: var(--destructive-text-color);
-    background-color: #ffe5e5;
-    padding: 8px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-  }
-  
-  /* Скелет для блока товара */
-  .product-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .product-item img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  .product-item-content {
-    flex-grow: 1;
-  }
-  
-  /* Управление количеством */
-  .product-quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .product-quantity-controls .button {
-    padding: 4px 12px;
-  }
-  
-  /* Слайдер */
-  .range-slider {
-    width: 100%;
-    margin: 8px 0;
-    touch-action: pan-x;
-  }
-  
-  /* Спиннер для загрузки */
-  .spinner {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    border: 2px solid var(--section-separator-color);
-    border-radius: 50%;
-    border-top-color: var(--button-color);
-    animation: spin 0.6s linear infinite;
-  }
+  --bg-color: var(--tg-theme-bg-color, #ffffff);
+  --text-color: var(--tg-theme-text-color, #000000);
+  --hint-color: var(--tg-theme-hint-color, #a8a8a8);
+  --link-color: var(--tg-theme-link-color, #3c7be6);
+  --button-color: var(--tg-theme-button-color, #2e7d32);
+  --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+  --secondary-bg-color: var(--tg-theme-secondary-bg-color, #f9f9f9);
+  --header-bg-color: var(--tg-theme-header-bg-color, #ffffff);
+  --bottom-bar-bg-color: var(--tg-theme-bottom-bar-bg-color, #ffffff);
+  --accent-text-color: var(--tg-theme-accent-text-color, #3c7be6);
+  --section-bg-color: var(--tg-theme-section-bg-color, #ffffff);
+  --section-header-text-color: var(--tg-theme-section-header-text-color, #000000);
+  --section-separator-color: var(--tg-theme-section-separator-color, #e0e0e0);
+  --subtitle-text-color: var(--tg-theme-subtitle-text-color, #666666);
+  --destructive-text-color: var(--tg-theme-destructive-text-color, #ff3b30);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.app-container {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--header-bg-color);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--section-separator-color);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.back-button {
+  background: none;
+  color: var(--link-color);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.button {
+  background: var(--button-color);
+  color: var(--button-text-color);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+.button-destructive {
+  background-color: transparent;
+  color: var(--destructive-text-color);
+  border: 1px solid var(--destructive-text-color);
+}
+
+.card {
+  background-color: var(--secondary-bg-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: var(--subtitle-text-color);
+  margin-bottom: 4px;
+}
+
+.input, .select {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid var(--section-separator-color);
+  border-radius: 4px;
+  background-color: var(--section-bg-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
 
 .label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-color);
-  }
-  
-  .input-error {
-    border: 1px solid var(--destructive-text-color) !important;
-  }
-  
-  /* Пример блока силы пароля */
-  .password-strength {
-    display: flex;
-    gap: 4px;
-    margin-top: 8px;
-  }
-  
-  .strength-bar {
-    flex: 1;
-    height: 4px;
-    border-radius: 2px;
-    background-color: var(--section-separator-color);
-    transition: background-color 0.2s;
-  }
-  
-  .strength-bar-active {
-    background-color: var(--button-color);
-  }
-  
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  .back-button {
-    margin-bottom: 16px;
-  }
-  
-  .select-container {
-    margin-bottom: 16px;
-  }
-  
-  .form-add-product {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  
-  .form-edit-product {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .product-card {
-    margin-bottom: 12px;
-  }
-  
-  .product-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .product-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  
-  .product-image {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-  }
-  .orders-filter-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .order-card {
-    padding: 16px;
-    border-radius: 8px;
-    background-color: var(--secondary-bg-color);
-  }
-  
-  .order-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.input-error {
+  border: 1px solid var(--destructive-text-color) !important;
+}
+
+.error-text {
+  color: var(--destructive-text-color);
+  background-color: #ffe5e5;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.product-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.product-item-content {
+  flex-grow: 1;
+}
+
+.product-image, .product-item img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.range-slider {
+  width: 100%;
+  margin: 8px 0;
+  touch-action: pan-x;
+}
+
+.form-add-product,
+.form-edit-product {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.product-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.orders-filter-form,
+.logs-filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.orders-list,
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-card,
+.log-card {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--secondary-bg-color);
+}
+
+.order-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--section-separator-color);
+  border-radius: 50%;
+  border-top-color: var(--button-color);
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.warehouse-report-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.report-description {
+  font-size: 15px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.download-button {
+  width: 100%;
+  max-width: 320px;
+  align-self: center;
+}
+
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto;
+  margin-top: 16px;
+}
+
+.login-page-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.login-card {
+  margin-top: 24px;
+}
+
+.error-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+.error-content {
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.error-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--destructive-text-color);
+}
+
+.error-message {
+  font-size: 16px;
+  color: var(--subtitle-text-color);
+}
+
+.centered {
+  text-align: center;
+  padding: 16px;
+}
+
+.centered.hint {
+  color: var(--hint-color);
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 12px;
   }
 
+  .card {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+  }
+
+  .header-title {
+    font-size: 16px;
+  }
+
+  .button {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  .input, .select {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .orders-filter-form,
   .logs-filter-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  .filter-group {
-    display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
   }
-  
-  .logs-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
+
+  .order-card,
   .log-card {
-    padding: 16px;
-    border-radius: 8px;
-    background-color: var(--secondary-bg-color);
+    font-size: 14px;
   }
-  .warehouse-report-container {
-    display: flex;
+
+  .order-actions,
+  .product-quantity-controls {
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
   }
-  
-  .error-text {
-    color: var(--destructive-text-color);
-    background-color: #ffe5e5;
-    padding: 8px;
-    border-radius: 8px;
+
+  .download-button {
+    width: 100%;
   }
+
+  .report-description {
+    font-size: 14px;
+  }
+
+  .employee-form {
+    max-width: 100%;
+    gap: 12px;
+  }
+
+  .login-page-container {
+    max-width: 100%;
+    padding: 12px;
+  }
+
+  .login-card {
+    margin-top: 16px;
+  }
+
+  .error-title {
+    font-size: 24px;
+  }
+
+  .error-message {
+    font-size: 14px;
+  }
+}
