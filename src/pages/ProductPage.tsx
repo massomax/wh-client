@@ -12,7 +12,7 @@ type Mode = 'sub' | 'add';
 
 export default function ProductPage() {
   const { warehouseId } = useParams<{ warehouseId: string }>();
-  const [mode] = useState<Mode>('sub');
+  const [mode, setMode] = useState<Mode>('sub');
   const [warehouseName, setWarehouseName] = useState('Загрузка...');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -105,6 +105,23 @@ export default function ProductPage() {
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="button-group" style={{ marginBottom: 12 }}>
+        <button
+          className="button"
+          style={{ opacity: mode === 'sub' ? 1 : 0.6 }}
+          onClick={() => setMode('sub')}
+        >
+          Списать
+        </button>
+        <button
+          className="button"
+          style={{ opacity: mode === 'add' ? 1 : 0.6 }}
+          onClick={() => setMode('add')}
+        >
+          Добавить
+        </button>
       </div>
 
       {mode === 'sub' ? (
