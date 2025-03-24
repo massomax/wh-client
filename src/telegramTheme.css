@@ -280,3 +280,28 @@
     gap: 8px;
     margin-top: 8px;
   }
+  
+  .logs-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .logs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .log-card {
+    padding: 16px;
+    border-radius: 8px;
+    background-color: var(--secondary-bg-color);
+  }
