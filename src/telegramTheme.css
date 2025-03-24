@@ -250,3 +250,33 @@
     height: 100px;
     object-fit: cover;
   }
+  .orders-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .order-card {
+    padding: 16px;
+    border-radius: 8px;
+    background-color: var(--secondary-bg-color);
+  }
+  
+  .order-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
