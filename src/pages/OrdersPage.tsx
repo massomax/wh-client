@@ -33,6 +33,10 @@ export default function OrdersPage() {
   // Список складов для фильтрации и отображения названия склада
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
+  // Состояния для редактирования статуса заказа
+  const [editingStatusOrderId, setEditingStatusOrderId] = useState<string | null>(null);
+  const [newStatus, setNewStatus] = useState<OrderStatus>('Ожидает Заказа');
+
   const fetchOrders = async () => {
     setLoading(true);
     setError('');
@@ -65,38 +69,30 @@ export default function OrdersPage() {
 
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // При смене фильтров отменяем режим редактирования статуса
+    setEditingStatusOrderId(null);
     fetchOrders();
   };
 
-  const handleUpdateStatus = async (order: Order) => {
-    const newStatus = prompt('Введите новый статус заказа:', order.status);
-    if (!newStatus || (newStatus !== 'Ожидает Заказа' && newStatus !== 'Заказано')) {
-      alert('Допустимые значения: "Ожидает Заказа" или "Заказано"');
-      return;
-    }
+  const handleSaveStatus = async (order: Order) => {
     try {
+      const warehouseId =
+        typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id;
       const response = await api.patch(
-        `/api/orders/${typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id}/${order._id}/status`,
+        `/api/orders/${warehouseId}/${order._id}/status`,
         { newStatus }
       );
       setOrders(prev =>
         prev.map(o => (o._id === order._id ? response.data : o))
       );
+      setEditingStatusOrderId(null);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Ошибка обновления статуса заказа');
     }
   };
 
-  const handleDeleteOrder = async (order: Order) => {
-    if (!window.confirm('Вы уверены, что хотите удалить этот заказ?')) return;
-    try {
-      await api.delete(
-        `/api/orders/${typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id}/${order._id}`
-      );
-      setOrders(prev => prev.filter(o => o._id !== order._id));
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Ошибка удаления заказа');
-    }
+  const handleCancelEdit = () => {
+    setEditingStatusOrderId(null);
   };
 
   // Функция для получения названия склада, независимо от того, приходит объект или строка
@@ -111,7 +107,7 @@ export default function OrdersPage() {
   return (
     <div className="app-container orders-container">
       <h2>Список заказов</h2>
-      <button className="button back-button" onClick={() => navigate(-1)}>
+      <button type="button" className="button back-button" onClick={() => navigate(-1)}>
         Вернуться назад
       </button>
 
@@ -168,7 +164,42 @@ export default function OrdersPage() {
                 <div>
                   <strong>Склад:</strong> {getWarehouseName(order.warehouse)}
                 </div>
-                <div><strong>Статус:</strong> {order.status}</div>
+                <div>
+                  <strong>Статус:</strong>{' '}
+                  {editingStatusOrderId === order._id ? (
+                    <>
+                      <select
+                        className="select"
+                        value={newStatus}
+                        onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
+                      >
+                        <option value="Ожидает Заказа">Ожидает Заказа</option>
+                        <option value="Заказано">Заказано</option>
+                      </select>
+                      <button type="button" className="button" onClick={() => handleSaveStatus(order)}>
+                        Сохранить
+                      </button>
+                      <button type="button" className="button button-destructive" onClick={handleCancelEdit}>
+                        Отмена
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {order.status}
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => {
+                          setEditingStatusOrderId(order._id);
+                          setNewStatus(order.status);
+                        }}
+                        style={{ marginLeft: '8px' }}
+                      >
+                        Обновить статус
+                      </button>
+                    </>
+                  )}
+                </div>
                 <div>
                   <strong>Создан:</strong> {new Date(order.createdAt).toLocaleString()}
                 </div>
@@ -176,10 +207,20 @@ export default function OrdersPage() {
                   <strong>Изменен:</strong> {new Date(order.statusChangedAt).toLocaleString()}
                 </div>
                 <div className="order-actions">
-                  <button className="button" onClick={() => handleUpdateStatus(order)}>
-                    Обновить статус
-                  </button>
-                  <button className="button button-destructive" onClick={() => handleDeleteOrder(order)}>
+                  <button type="button" className="button button-destructive" onClick={() => {
+                    if(window.confirm('Вы уверены, что хотите удалить этот заказ?')) {
+                      // Удаление заказа
+                      (async () => {
+                        try {
+                          const warehouseId = typeof order.warehouse === 'string' ? order.warehouse : order.warehouse._id;
+                          await api.delete(`/api/orders/${warehouseId}/${order._id}`);
+                          setOrders(prev => prev.filter(o => o._id !== order._id));
+                        } catch (err: any) {
+                          alert(err.response?.data?.message || 'Ошибка удаления заказа');
+                        }
+                      })();
+                    }
+                  }}>
                     Удалить заказ
                   </button>
                 </div>
