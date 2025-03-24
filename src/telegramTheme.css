@@ -280,7 +280,7 @@
     gap: 8px;
     margin-top: 8px;
   }
-  
+
   .logs-filter-form {
     display: flex;
     flex-wrap: wrap;
@@ -304,4 +304,16 @@
     padding: 16px;
     border-radius: 8px;
     background-color: var(--secondary-bg-color);
+  }
+  .warehouse-report-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .error-text {
+    color: var(--destructive-text-color);
+    background-color: #ffe5e5;
+    padding: 8px;
+    border-radius: 8px;
   }
