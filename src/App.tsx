@@ -1,4 +1,3 @@
-// App.tsx
 import { createBrowserRouter, Navigate, RouterProvider, useLocation } from 'react-router-dom';
 import WarehousesPage from './pages/WarehousesPage';
 import ProductsPage from './pages/ProductPage';

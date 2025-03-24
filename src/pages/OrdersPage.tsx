@@ -1,4 +1,3 @@
-
 export default function OrdersPage() {
   return (
     <div className="app-container">

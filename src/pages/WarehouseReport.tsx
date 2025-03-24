@@ -1,4 +1,3 @@
-
 export default function WarehouseReport() {
   return (
     <div className="app-container">

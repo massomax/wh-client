@@ -1,4 +1,3 @@
-// ManagerDashboard.tsx
 import { useNavigate } from 'react-router-dom';
 import LogoutButton from '../components/LogoutButton';
 

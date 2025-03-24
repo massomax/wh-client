@@ -1,4 +1,3 @@
-
 export default function WarehouseActions() {
   return (
     <div className="app-container">
