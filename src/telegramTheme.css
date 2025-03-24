@@ -208,4 +208,45 @@
       transform: rotate(360deg);
     }
   }
+  .back-button {
+    margin-bottom: 16px;
+  }
   
+  .select-container {
+    margin-bottom: 16px;
+  }
+  
+  .form-add-product {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .form-edit-product {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .product-card {
+    margin-bottom: 12px;
+  }
+  
+  .product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .product-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+  }

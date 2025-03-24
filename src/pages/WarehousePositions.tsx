@@ -1,5 +1,8 @@
+// WarehousePositions.tsx
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
+import { useNavigate } from 'react-router-dom';
+import './WarehousePositions.css';
 
 interface Warehouse {
   _id: string;
@@ -18,13 +21,13 @@ interface Product {
 }
 
 export default function WarehousePositions() {
+  const navigate = useNavigate();
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [error, setError] = useState('');
 
-  // Состояния для формы добавления нового товара
   const [newProduct, setNewProduct] = useState({
     name: '',
     quantity: 0,
@@ -35,7 +38,6 @@ export default function WarehousePositions() {
   const [addError, setAddError] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
-  // Состояния для редактирования товара
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editProduct, setEditProduct] = useState<{
     name: string;
@@ -53,7 +55,6 @@ export default function WarehousePositions() {
   const [editError, setEditError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Получение списка складов (например, из API /api/warehouses)
   useEffect(() => {
     const fetchWarehouses = async () => {
       try {
@@ -69,7 +70,6 @@ export default function WarehousePositions() {
     fetchWarehouses();
   }, []);
 
-  // Получение списка товаров для выбранного склада
   useEffect(() => {
     if (!selectedWarehouseId) return;
     const fetchProducts = async () => {
@@ -86,7 +86,6 @@ export default function WarehousePositions() {
     fetchProducts();
   }, [selectedWarehouseId]);
 
-  // Функция для добавления нового товара
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddError('');
@@ -103,9 +102,7 @@ export default function WarehousePositions() {
       const response = await api.post(`/api/products/${selectedWarehouseId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      // Добавляем созданный товар в список
       setProducts(prev => [...prev, response.data]);
-      // Сбрасываем форму
       setNewProduct({
         name: '',
         quantity: 0,
@@ -120,7 +117,6 @@ export default function WarehousePositions() {
     }
   };
 
-  // Функция для удаления товара
   const handleDeleteProduct = async (productId: string) => {
     if (!window.confirm('Вы уверены, что хотите удалить этот товар?')) return;
     try {
@@ -131,7 +127,6 @@ export default function WarehousePositions() {
     }
   };
 
-  // Функция для перехода в режим редактирования товара
   const startEditing = (product: Product) => {
     setEditingProductId(product._id);
     setEditProduct({
@@ -144,7 +139,6 @@ export default function WarehousePositions() {
     setEditError('');
   };
 
-  // Функция для сохранения изменений отредактированного товара
   const handleEditProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProductId) return;
@@ -174,11 +168,13 @@ export default function WarehousePositions() {
   return (
     <div className="app-container">
       <h2>Управление позициями складов</h2>
+      <button className="button back-button" onClick={() => navigate(-1)}>
+        Вернуться назад
+      </button>
 
       {error && <div className="error-text">{error}</div>}
 
-      {/* Выбор склада */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="select-container">
         <label htmlFor="warehouse-select" className="label">Выберите склад:</label>
         <select
           id="warehouse-select"
@@ -194,9 +190,8 @@ export default function WarehousePositions() {
         </select>
       </div>
 
-      {/* Форма добавления нового товара */}
       <h3>Добавить новый товар</h3>
-      <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+      <form onSubmit={handleAddProduct} className="form-add-product">
         <input
           className="input"
           type="text"
@@ -240,7 +235,6 @@ export default function WarehousePositions() {
         </button>
       </form>
 
-      {/* Список товаров */}
       <h3>Список товаров</h3>
       {loadingProducts ? (
         <div>Загрузка товаров...</div>
@@ -250,10 +244,9 @@ export default function WarehousePositions() {
             <div>Товары не найдены</div>
           ) : (
             products.map((product) => (
-              <div key={product._id} className="card" style={{ marginBottom: 12 }}>
+              <div key={product._id} className="card product-card">
                 {editingProductId === product._id ? (
-                  // Форма редактирования товара
-                  <form onSubmit={handleEditProduct} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <form onSubmit={handleEditProduct} className="form-edit-product">
                     <input
                       className="input"
                       type="text"
@@ -288,7 +281,7 @@ export default function WarehousePositions() {
                       onChange={(e) => setEditProduct({ ...editProduct, photo: e.target.files ? e.target.files[0] : null })}
                     />
                     {editError && <div className="error-text">{editError}</div>}
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div className="product-actions">
                       <button type="submit" className="button" disabled={isEditing}>
                         {isEditing ? 'Сохранение...' : 'Сохранить'}
                       </button>
@@ -302,8 +295,7 @@ export default function WarehousePositions() {
                     </div>
                   </form>
                 ) : (
-                  // Отображение данных товара
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div className="product-details">
                     <div><strong>{product.name}</strong></div>
                     <div>Количество: {product.quantity}</div>
                     <div>Критическое значение: {product.criticalValue}</div>
@@ -312,10 +304,10 @@ export default function WarehousePositions() {
                       <img
                         src={product.photo.url}
                         alt={product.name}
-                        style={{ width: 100, height: 100, objectFit: 'cover' }}
+                        className="product-image"
                       />
                     )}
-                    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <div className="product-actions">
                       <button className="button" onClick={() => startEditing(product)}>
                         Редактировать
                       </button>
