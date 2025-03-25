@@ -196,7 +196,7 @@ export default function ProductPageAdd({
                       type="range"
                       className="long-slider"
                       min={0}
-                      max={999999} 
+                      max={500} 
                       value={quantityValue}
                       onChange={(e) =>
                         handleQuantityChange(product._id, parseInt(e.target.value))
