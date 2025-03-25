@@ -139,15 +139,9 @@ html, body {
   margin-bottom: 12px;
 }
 
-/* PRODUCT LAYOUT (НОВЫЙ СТИЛЬ) */
+/* PRODUCT CARD ЭЛЕМЕНТЫ */
 
-.product-row {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
+/* Изображение продукта */
 .product-thumb {
   width: 80px;
   height: 80px;
@@ -155,43 +149,23 @@ html, body {
   border-radius: 8px;
 }
 
-.product-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.product-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-}
-
+/* Название и остаток */
 .product-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
 }
 
 .product-qty {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--subtitle-text-color);
 }
 
-.product-controls-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
+/* Элементы управления (кнопки, инпут, слайдер) */
 .product-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .circle-btn {
@@ -211,6 +185,8 @@ html, body {
   text-align: center;
   font-size: 14px;
   padding: 4px 6px;
+  border: 1px solid var(--section-separator-color);
+  border-radius: 4px;
 }
 
 .compact-action {
@@ -219,24 +195,20 @@ html, body {
   padding: 6px 12px;
 }
 
-.wide-action {
-  flex-grow: 1;
-  font-size: 14px;
-  padding: 8px;
-}
-
 .long-slider {
   width: 100%;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
-/* UTILS */
+/* RANGE SLIDER */
 
 .range-slider {
   width: 100%;
   margin: 8px 0;
   touch-action: pan-x;
 }
+
+/* SPINNER */
 
 .spinner {
   display: inline-block;
@@ -252,6 +224,8 @@ html, body {
   to { transform: rotate(360deg); }
 }
 
+/* CENTERED */
+
 .centered {
   text-align: center;
   padding: 16px;
@@ -261,7 +235,7 @@ html, body {
   color: var(--hint-color);
 }
 
-/* ADAPTATION */
+/* ADAPTATION / RESPONSIVE СТИЛИ */
 
 @media (max-width: 768px) {
   .app-container {
@@ -294,13 +268,14 @@ html, body {
     font-size: 15px;
     padding: 10px;
   }
-
+  
+  /* Улучшенные стили для элементов управления продуктом на мобильных устройствах */
   .product-controls {
     flex-direction: column;
     align-items: stretch;
   }
-
-  .wide-action {
-    width: 100%;
+  
+  .small-input {
+    width: 60px;
   }
 }
