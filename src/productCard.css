@@ -1,6 +1,6 @@
-/* 
+/*
   productCard.css
-  Стили для карточки продукта, 
+  Стили для карточки продукта: 
   фото слева, три ряда (top/middle/bottom) справа
 */
 
@@ -45,7 +45,7 @@
   /* Средний ряд: Элементы управления количеством и кнопка "Списать" */
   .product-middle-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* По умолчанию можно wrap, чтобы на больших экранах не обрезать */
     align-items: center;
     gap: 8px;
   }
@@ -55,13 +55,7 @@
     margin-top: 4px;
   }
   
-  /* 
-    Элементы управления:
-    circle-btn, small-input, 
-    кнопка "Списать" (compact-action), 
-    слайдер (long-slider)
-  */
-  
+  /* Элементы управления (кнопки, инпут, слайдер) */
   .product-controls {
     display: flex;
     align-items: center;
@@ -100,48 +94,41 @@
     margin-top: 8px;
   }
   
-  /* 
-    Адаптивные стили для мобильных устройств 
-    (убрана переориентация на столбец)
-  */
+  /* Адаптивные стили для мобильных устройств */
   @media (max-width: 768px) {
-    /* Уменьшаем отступы и размеры для компактного отображения */
     .product-card-container {
-      gap: 8px;            /* Вместо 16px */
+      gap: 8px; /* Уменьшаем отступ между фото и блоком с деталями */
     }
-    
+  
     .product-thumb-large {
-      width: 80px;         /* Вместо 120px */
-      height: 80px;
+      width: 100px; 
+      height: 100px;
     }
-    
+  
     .product-top-row {
-      font-size: 14px;     /* Чуть меньше шрифт */
+      font-size: 14px; /* Чуть меньше шрифт для компактности */
     }
-    
+  
+    /* Средний ряд без переноса, чтобы кнопка оставалась в одной строке с input */
     .product-middle-row {
-      gap: 6px;            /* Чуть меньше отступ между элементами */
+      flex-wrap: nowrap; 
     }
-    
+  
     .circle-btn {
-      width: 28px;         /* Чуть уменьшаем кнопки */
+      width: 28px;
       height: 28px;
       font-size: 16px;
     }
-    
+  
     .small-input {
-      width: 40px;         /* Уменьшаем ширину поля ввода */
+      width: 40px;
       height: 28px;
       font-size: 13px;
     }
-    
+  
     .compact-action {
       font-size: 12px;
       padding: 4px 8px;
-    }
-    
-    .long-slider {
-      margin-top: 4px;     /* Уменьшаем отступ над слайдером */
     }
   }
   
