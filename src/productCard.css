@@ -1,3 +1,9 @@
+/* 
+  productCard.css
+  Стили для карточки продукта, 
+  фото слева, три ряда (top/middle/bottom) справа
+*/
+
 /* Контейнер карточки с фото и деталями продукта */
 .product-card-container {
     display: flex;
@@ -49,7 +55,13 @@
     margin-top: 4px;
   }
   
-  /* Стили для элементов управления сохраняются, например: */
+  /* 
+    Элементы управления:
+    circle-btn, small-input, 
+    кнопка "Списать" (compact-action), 
+    слайдер (long-slider)
+  */
+  
   .product-controls {
     display: flex;
     align-items: center;
@@ -88,21 +100,48 @@
     margin-top: 8px;
   }
   
-  /* Адаптивные стили для мобильных устройств */
+  /* 
+    Адаптивные стили для мобильных устройств 
+    (убрана переориентация на столбец)
+  */
   @media (max-width: 768px) {
+    /* Уменьшаем отступы и размеры для компактного отображения */
     .product-card-container {
-      flex-direction: column;
-      align-items: center;
+      gap: 8px;            /* Вместо 16px */
     }
-    .product-image-container {
-      margin-bottom: 12px;
+    
+    .product-thumb-large {
+      width: 80px;         /* Вместо 120px */
+      height: 80px;
     }
-    .product-details {
-      width: 100%;
+    
+    .product-top-row {
+      font-size: 14px;     /* Чуть меньше шрифт */
     }
+    
     .product-middle-row {
-      flex-direction: column;
-      align-items: stretch;
+      gap: 6px;            /* Чуть меньше отступ между элементами */
+    }
+    
+    .circle-btn {
+      width: 28px;         /* Чуть уменьшаем кнопки */
+      height: 28px;
+      font-size: 16px;
+    }
+    
+    .small-input {
+      width: 40px;         /* Уменьшаем ширину поля ввода */
+      height: 28px;
+      font-size: 13px;
+    }
+    
+    .compact-action {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+    
+    .long-slider {
+      margin-top: 4px;     /* Уменьшаем отступ над слайдером */
     }
   }
   
