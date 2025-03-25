@@ -378,3 +378,76 @@ html, body {
     font-size: 14px;
   }
 }
+.product-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.product-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.product-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.product-qty {
+  font-size: 13px;
+  color: var(--subtitle-text-color);
+}
+
+.product-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.circle-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--section-separator-color);
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.small-input {
+  width: 50px;
+  text-align: center;
+  font-size: 14px;
+  padding: 4px 6px;
+}
+
+.wide-action {
+  flex-grow: 1;
+  font-size: 14px;
+  padding: 8px;
+}
+
+.long-slider {
+  width: 100%;
+  margin-top: 4px;
+}
