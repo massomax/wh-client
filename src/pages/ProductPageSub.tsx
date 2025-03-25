@@ -128,10 +128,7 @@ export default function ProductPageSub({
                     Остаток: {product.quantity}
                   </div>
                 </div>
-              </div>
-
-              {/* Средний ряд: Кнопки управления и ввод количества */}
-              <div
+                <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -172,6 +169,20 @@ export default function ProductPageSub({
                   {loading ? 'Загрузка...' : `Списать ${value} ед.`}
                 </button>
               </div>
+              <input
+                type="range"
+                className="long-slider"
+                min={0}
+                max={product.quantity}
+                value={value}
+                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                disabled={loading || disableSlider}
+                style={{ marginTop: '8px' }}
+              />
+              </div>
+
+              {/* Средний ряд: Кнопки управления и ввод количества */}
+
 
               {/* Нижний ряд: Слайдер выбора количества */}
               <input
