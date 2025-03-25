@@ -28,6 +28,8 @@ html, body {
   padding: 16px;
 }
 
+/* HEADER */
+
 .header {
   display: flex;
   align-items: center;
@@ -52,6 +54,8 @@ html, body {
   font-size: 14px;
   padding: 0;
 }
+
+/* BUTTONS */
 
 .button-group {
   display: flex;
@@ -80,6 +84,8 @@ html, body {
   border: 1px solid var(--destructive-text-color);
 }
 
+/* CARDS */
+
 .card {
   background-color: var(--secondary-bg-color);
   border-radius: 8px;
@@ -98,6 +104,8 @@ html, body {
   color: var(--subtitle-text-color);
   margin-bottom: 4px;
 }
+
+/* FORMS */
 
 .input, .select {
   display: block;
@@ -131,253 +139,8 @@ html, body {
   margin-bottom: 12px;
 }
 
-.product-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
+/* PRODUCT LAYOUT (НОВЫЙ СТИЛЬ) */
 
-.product-item-content {
-  flex-grow: 1;
-}
-
-.product-image, .product-item img {
-  width: 100px;
-  height: auto;
-  border-radius: 6px;
-  margin-top: 12px;
-  border-radius: 8px;
-}
-
-.product-quantity-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-
-.range-slider {
-  width: 100%;
-  margin: 8px 0;
-  touch-action: pan-x;
-}
-
-.form-add-product,
-.form-edit-product {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.product-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.orders-filter-form,
-.logs-filter-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.orders-list,
-.logs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.order-card,
-.log-card {
-  padding: 16px;
-  border-radius: 8px;
-  background-color: var(--secondary-bg-color);
-}
-
-.order-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.spinner {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--section-separator-color);
-  border-radius: 50%;
-  border-top-color: var(--button-color);
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.warehouse-report-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.report-description {
-  font-size: 15px;
-  margin-bottom: 16px;
-  line-height: 1.4;
-}
-
-.download-button {
-  width: 100%;
-  max-width: 320px;
-  align-self: center;
-}
-
-.employee-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 400px;
-  margin: 0 auto;
-  margin-top: 16px;
-}
-
-.login-page-container {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.login-card {
-  margin-top: 24px;
-}
-
-.error-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  text-align: center;
-}
-
-.error-content {
-  max-width: 400px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.error-title {
-  font-size: 28px;
-  font-weight: bold;
-  color: var(--destructive-text-color);
-}
-
-.error-message {
-  font-size: 16px;
-  color: var(--subtitle-text-color);
-}
-
-.centered {
-  text-align: center;
-  padding: 16px;
-}
-
-.centered.hint {
-  color: var(--hint-color);
-}
-
-@media (max-width: 768px) {
-  .app-container {
-    padding: 12px;
-  }
-
-  .card {
-    padding: 12px;
-  }
-
-  .card-title {
-    font-size: 16px;
-  }
-
-  .card-subtitle {
-    font-size: 13px;
-  }
-
-  .header-title {
-    font-size: 16px;
-  }
-
-  .button {
-    width: 100%;
-    padding: 10px;
-    font-size: 15px;
-  }
-
-  .input, .select {
-    font-size: 15px;
-    padding: 10px;
-  }
-
-  .orders-filter-form,
-  .logs-filter-form {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .order-card,
-  .log-card {
-    font-size: 14px;
-  }
-
-  .order-actions,
-  .product-quantity-controls {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .download-button {
-    width: 100%;
-  }
-
-  .report-description {
-    font-size: 14px;
-  }
-
-  .employee-form {
-    max-width: 100%;
-    gap: 12px;
-  }
-
-  .login-page-container {
-    max-width: 100%;
-    padding: 12px;
-  }
-
-  .login-card {
-    margin-top: 16px;
-  }
-
-  .error-title {
-    font-size: 24px;
-  }
-
-  .error-message {
-    font-size: 14px;
-  }
-}
 .product-row {
   display: flex;
   gap: 12px;
@@ -450,4 +213,79 @@ html, body {
 .long-slider {
   width: 100%;
   margin-top: 4px;
+}
+
+/* UTILS */
+
+.range-slider {
+  width: 100%;
+  margin: 8px 0;
+  touch-action: pan-x;
+}
+
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--section-separator-color);
+  border-radius: 50%;
+  border-top-color: var(--button-color);
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.centered {
+  text-align: center;
+  padding: 16px;
+}
+
+.centered.hint {
+  color: var(--hint-color);
+}
+
+/* ADAPTATION */
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+  }
+
+  .header-title {
+    font-size: 16px;
+  }
+
+  .button {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  .input, .select {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .product-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wide-action {
+    width: 100%;
+  }
 }
