@@ -142,9 +142,10 @@ html, body {
 /* PRODUCT LAYOUT (НОВЫЙ СТИЛЬ) */
 
 .product-row {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .product-thumb {
@@ -179,11 +180,18 @@ html, body {
   color: var(--subtitle-text-color);
 }
 
+.product-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .product-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .circle-btn {
@@ -199,9 +207,16 @@ html, body {
 
 .small-input {
   width: 50px;
+  height: 32px;
   text-align: center;
   font-size: 14px;
   padding: 4px 6px;
+}
+
+.compact-action {
+  font-size: 13px;
+  white-space: nowrap;
+  padding: 6px 12px;
 }
 
 .wide-action {
