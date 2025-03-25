@@ -10,6 +10,8 @@
     flex-direction: row;
     gap: 16px;
     align-items: flex-start;
+    /* Позволяем содержимому сжиматься, чтобы избежать горизонтального скролла */
+    min-width: 0;
   }
   
   /* Контейнер для увеличенного изображения продукта */
@@ -27,10 +29,11 @@
   
   /* Контейнер с деталями продукта (три ряда) */
   .product-details {
-    flex: 1;
+    flex: 1;       /* Чтобы блок занимал всё доступное пространство */
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;  /* Аналогично, не даём блоку расширяться вне экрана */
   }
   
   /* Верхний ряд: Название продукта и остаток */
@@ -40,14 +43,17 @@
     align-items: center;
     font-size: 16px;
     font-weight: bold;
+    min-width: 0;
   }
   
   /* Средний ряд: Элементы управления количеством и кнопка "Списать" */
   .product-middle-row {
     display: flex;
-    flex-wrap: wrap; /* По умолчанию можно wrap, чтобы на больших экранах не обрезать */
+    /* Разрешаем перенос элементов, чтобы не вылезать за экран */
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+    min-width: 0;
   }
   
   /* Нижний ряд: Слайдер выбора количества */
@@ -60,6 +66,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
   }
   
   .circle-btn {
@@ -85,7 +92,7 @@
   
   .compact-action {
     font-size: 13px;
-    white-space: nowrap;
+    white-space: nowrap; /* При необходимости можно убрать, если нужно перенести текст */
     padding: 6px 12px;
   }
   
@@ -101,7 +108,7 @@
     }
   
     .product-thumb-large {
-      width: 100px; 
+      width: 100px;
       height: 100px;
     }
   
@@ -109,9 +116,13 @@
       font-size: 14px; /* Чуть меньше шрифт для компактности */
     }
   
-    /* Средний ряд без переноса, чтобы кнопка оставалась в одной строке с input */
+    /* 
+      Разрешаем перенос элементов, чтобы 
+      кнопка списания не выталкивала блок за экран.
+    */
     .product-middle-row {
-      flex-wrap: nowrap; 
+      flex-wrap: wrap;
+      gap: 6px;
     }
   
     .circle-btn {
