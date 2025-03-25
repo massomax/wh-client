@@ -25,6 +25,7 @@ export default function ProductPageSub({
   const [disableSlider, setDisableSlider] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Отключаем слайдер на время скролла для лучшей отзывчивости
   useEffect(() => {
     const handleScroll = () => {
       setDisableSlider(true);
@@ -62,26 +63,27 @@ export default function ProductPageSub({
     setFilteredProducts(result);
   }, [allProducts, searchQuery, selectedCategory]);
 
-  const handleQuantityChange = (productId: string, value: number) => {
+  const handleQuantityChange = (productId: string, newValue: number) => {
     const product = allProducts.find((p) => p._id === productId);
     if (!product) return;
-    const newValue = Math.max(0, Math.min(value, product.quantity));
+    // Ограничиваем значение от 0 до текущего остатка
+    if (newValue < 0) newValue = 0;
+    if (newValue > product.quantity) newValue = product.quantity;
     setQuantities((prev) => ({ ...prev, [productId]: newValue }));
   };
 
   const handleSubtract = async (productId: string) => {
-    const quantity = quantities[productId] || 0;
-    if (quantity <= 0 || loadingProductIds[productId]) return;
-
+    const value = quantities[productId] || 0;
+    if (value <= 0 || loadingProductIds[productId]) return;
     setLoadingProductIds((prev) => ({ ...prev, [productId]: true }));
     try {
       await api.patch(`/api/products/${productId}/quantity`, {
         action: 'sub',
-        value: quantity,
+        value: value,
         warehouseId,
       });
       const updatedProducts = allProducts.map((p) =>
-        p._id === productId ? { ...p, quantity: p.quantity - quantity } : p
+        p._id === productId ? { ...p, quantity: p.quantity - value } : p
       );
       setAllProducts(updatedProducts);
       setQuantities((prev) => ({ ...prev, [productId]: 0 }));
@@ -107,52 +109,81 @@ export default function ProductPageSub({
           const loading = !!loadingProductIds[product._id];
 
           return (
-            <div key={product._id} className="card product-row">
-              {product.photo?.url && (
-                <img src={product.photo.url} alt={product.name} className="product-thumb" />
-              )}
-
-              <div className="product-content">
-                <div className="product-header">
-                  <span className="product-name">{product.name}</span>
-                  <span className="product-qty">Остаток: {product.quantity}</span>
-                </div>
-
-                <div className="product-controls-row">
-                  <div className="product-controls">
-                    <button onClick={() => handleQuantityChange(product._id, value - 1)} disabled={loading} className="circle-btn">−</button>
-                    <input
-                      type="number"
-                      value={value}
-                      onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                      className="small-input"
-                      min={0}
-                      max={product.quantity}
-                      disabled={loading}
-                    />
-                    <button onClick={() => handleQuantityChange(product._id, value + 1)} disabled={loading} className="circle-btn">+</button>
+            <div key={product._id} className="card" style={{ marginBottom: '16px' }}>
+              {/* Верхний ряд: Фото и информация о продукте */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                {product.photo?.url && (
+                  <img
+                    src={product.photo.url}
+                    alt={product.name}
+                    className="product-thumb"
+                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }}
+                  />
+                )}
+                <div style={{ flex: 1 }}>
+                  <div className="product-name" style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                    {product.name}
                   </div>
-
-                  <button
-                    className="button button-destructive compact-action"
-                    onClick={() => handleSubtract(product._id)}
-                    disabled={loading || value === 0}
-                    title="Списать со склада"
-                  >
-                    {loading ? 'Загрузка...' : `Списать ${value} ед.`}
-                  </button>
+                  <div className="product-qty" style={{ fontSize: '14px', color: 'var(--subtitle-text-color)' }}>
+                    Остаток: {product.quantity}
+                  </div>
                 </div>
+              </div>
 
+              {/* Средний ряд: Кнопки управления и ввод количества */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={() => handleQuantityChange(product._id, value - 1)}
+                  disabled={loading}
+                  className="circle-btn"
+                >
+                  −
+                </button>
                 <input
-                  type="range"
-                  className="long-slider"
-                  min={0}
-                  max={product.quantity}
+                  type="number"
                   value={value}
                   onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                  disabled={loading || disableSlider}
+                  className="small-input"
+                  min={0}
+                  max={product.quantity}
+                  disabled={loading}
                 />
+                <button
+                  onClick={() => handleQuantityChange(product._id, value + 1)}
+                  disabled={loading}
+                  className="circle-btn"
+                >
+                  +
+                </button>
+                <button
+                  className="button button-destructive compact-action"
+                  onClick={() => handleSubtract(product._id)}
+                  disabled={loading || value === 0}
+                  title="Списать со склада"
+                >
+                  {loading ? 'Загрузка...' : `Списать ${value} ед.`}
+                </button>
               </div>
+
+              {/* Нижний ряд: Слайдер выбора количества */}
+              <input
+                type="range"
+                className="long-slider"
+                min={0}
+                max={product.quantity}
+                value={value}
+                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                disabled={loading || disableSlider}
+                style={{ marginTop: '8px' }}
+              />
             </div>
           );
         })}
