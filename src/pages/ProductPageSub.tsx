@@ -21,15 +21,10 @@ export default function ProductPageSub({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
-
-  // Флаги загрузки (true/false) для каждого продукта
   const [loadingProductIds, setLoadingProductIds] = useState<{ [key: string]: boolean }>({});
-
-  // Флаг отключения ползунка во время скролла
   const [disableSlider, setDisableSlider] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // ====== События скролла ======
   useEffect(() => {
     const handleScroll = () => {
       setDisableSlider(true);
@@ -51,7 +46,6 @@ export default function ProductPageSub({
     };
   }, []);
 
-  // Загрузка продуктов
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -67,7 +61,6 @@ export default function ProductPageSub({
     fetchProducts();
   }, [warehouseId]);
 
-  // Фильтрация продуктов
   useEffect(() => {
     const result = allProducts.filter(p => 
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -76,7 +69,6 @@ export default function ProductPageSub({
     setFilteredProducts(result);
   }, [allProducts, searchQuery, selectedCategory]);
 
-  // Изменение количества
   const handleQuantityChange = (productId: string, value: number) => {
     const product = allProducts.find(p => p._id === productId);
     if (!product) return;
@@ -85,7 +77,6 @@ export default function ProductPageSub({
     setQuantities(prev => ({ ...prev, [productId]: newValue }));
   };
 
-  // Списать
   const handleSubtract = async (productId: string) => {
     if (loadingProductIds[productId]) return;
     const quantity = quantities[productId] || 0;
@@ -120,73 +111,71 @@ export default function ProductPageSub({
       {!isLoading && !error && filteredProducts.length === 0 && (
         <EmptyState message="Товары не найдены" />
       )}
-  
+
       {!isLoading && !error && filteredProducts.map(product => {
         const quantityValue = quantities[product._id] || 0;
         const isProductLoading = !!loadingProductIds[product._id];
-  
+
         return (
           <div key={product._id} className="card product-item">
+            <div className="product-item-content">
+              <div className="card-title">{product.name}</div>
+              <div className="card-subtitle">Остаток: {product.quantity}</div>
+
+              <div className="product-actions-block">
+                <div className="product-quantity-controls">
+                  <button
+                    className="quantity-button"
+                    onClick={() => handleQuantityChange(product._id, quantityValue - 1)}
+                    disabled={isProductLoading}
+                  >−</button>
+
+                  <input
+                    type="number"
+                    className="input input-qty"
+                    value={quantityValue}
+                    onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                    min={0}
+                    max={product.quantity}
+                    disabled={isProductLoading}
+                  />
+
+                  <button
+                    className="quantity-button"
+                    onClick={() => handleQuantityChange(product._id, quantityValue + 1)}
+                    disabled={isProductLoading}
+                  >+</button>
+                </div>
+
+                <input
+                  type="range"
+                  className="range-slider"
+                  min={0}
+                  max={product.quantity}
+                  value={quantityValue}
+                  onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
+                  disabled={isProductLoading || disableSlider}
+                />
+
+                <button
+                  className="button button-destructive"
+                  onClick={() => handleSubtract(product._id)}
+                  disabled={isProductLoading || quantityValue === 0}
+                >
+                  {isProductLoading 
+                    ? 'Загрузка...' 
+                    : `Списать ${quantityValue} ед. со склада`}
+                </button>
+              </div>
+            </div>
+
             {product.photo?.url && (
               <img 
                 src={product.photo.url}
                 alt={product.name}
-                aria-label={product.name}
+                className="product-image"
               />
             )}
-            <div className="product-item-content">
-              <div className="card-title">{product.name}</div>
-              <div className="card-subtitle">Остаток: {product.quantity}</div>
-  
-              <div className="product-quantity-controls">
-                <button
-                  className="button"
-                  onClick={() => handleQuantityChange(product._id, quantityValue - 1)}
-                  disabled={isProductLoading}
-                >
-                  -
-                </button>
-  
-                <input
-                  type="number"
-                  className="input"
-                  style={{ width: 80, textAlign: 'center' }}
-                  value={quantityValue}
-                  onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                  min={0}
-                  max={product.quantity}
-                  aria-label="Количество для списания"
-                  disabled={isProductLoading}
-                />
-  
-                <button
-                  className="button"
-                  onClick={() => handleQuantityChange(product._id, quantityValue + 1)}
-                  disabled={isProductLoading}
-                >
-                  +
-                </button>
-              </div>
-  
-              <input
-                type="range"
-                className="range-slider"
-                min={0}
-                max={product.quantity}
-                value={quantityValue}
-                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                aria-label="Слайдер количества"
-                disabled={isProductLoading || disableSlider}
-              />
-  
-              <button
-                className="button button-destructive"
-                onClick={() => handleSubtract(product._id)}
-                disabled={isProductLoading || quantityValue === 0}
-              >
-                {isProductLoading ? 'Загрузка...' : `Списать (${quantityValue} ед.)`}
-              </button>
-            </div>
           </div>
         );
       })}

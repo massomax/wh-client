@@ -142,10 +142,10 @@ html, body {
 }
 
 .product-image, .product-item img {
-  width: 100%;
-  max-width: 200px;
+  width: 100px;
   height: auto;
-  object-fit: cover;
+  border-radius: 6px;
+  margin-top: 12px;
   border-radius: 8px;
 }
 
