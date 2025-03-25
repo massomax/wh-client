@@ -4,6 +4,8 @@ import { api } from '../api/client';
 import ErrorBlock from '../components/ui/ErrorBlock';
 import Loader from '../components/ui/Loader';
 import EmptyState from '../components/ui/EmptyState';
+import '../productCard.css';
+
 
 type Props = {
   warehouseId: string;
@@ -66,7 +68,6 @@ export default function ProductPageSub({
   const handleQuantityChange = (productId: string, newValue: number) => {
     const product = allProducts.find((p) => p._id === productId);
     if (!product) return;
-    // Ограничиваем значение от 0 до текущего остатка
     if (newValue < 0) newValue = 0;
     if (newValue > product.quantity) newValue = product.quantity;
     setQuantities((prev) => ({ ...prev, [productId]: newValue }));
@@ -109,92 +110,74 @@ export default function ProductPageSub({
           const loading = !!loadingProductIds[product._id];
 
           return (
-            <div key={product._id} className="card" style={{ marginBottom: '16px' }}>
-              {/* Верхний ряд: Фото и информация о продукте */}
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                {product.photo?.url && (
-                  <img
-                    src={product.photo.url}
-                    alt={product.name}
-                    className="product-thumb"
-                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }}
-                  />
-                )}
-                <div style={{ flex: 1 }}>
-                  <div className="product-name" style={{ fontSize: '16px', fontWeight: 'bold' }}>
-                    {product.name}
+            <div key={product._id} className="card product-card">
+              <div className="product-card-container">
+                <div className="product-image-container">
+                  {product.photo?.url && (
+                    <img
+                      src={product.photo.url}
+                      alt={product.name}
+                      className="product-thumb-large"
+                    />
+                  )}
+                </div>
+                <div className="product-details">
+                  <div className="product-top-row">
+                    <div className="product-name">{product.name}</div>
+                    <div className="product-qty">Остаток: {product.quantity}</div>
                   </div>
-                  <div className="product-qty" style={{ fontSize: '14px', color: 'var(--subtitle-text-color)' }}>
-                    Остаток: {product.quantity}
+                  <div className="product-middle-row">
+                    <div className="product-controls">
+                      <button
+                        onClick={() => handleQuantityChange(product._id, value - 1)}
+                        disabled={loading}
+                        className="circle-btn"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={value}
+                        onChange={(e) =>
+                          handleQuantityChange(product._id, parseInt(e.target.value))
+                        }
+                        className="small-input"
+                        min={0}
+                        max={product.quantity}
+                        disabled={loading}
+                      />
+                      <button
+                        onClick={() => handleQuantityChange(product._id, value + 1)}
+                        disabled={loading}
+                        className="circle-btn"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      className="button button-destructive compact-action"
+                      onClick={() => handleSubtract(product._id)}
+                      disabled={loading || value === 0}
+                      title="Списать со склада"
+                    >
+                      {loading ? 'Загрузка...' : `Списать ${value} ед.`}
+                    </button>
+                  </div>
+                  <div className="product-bottom-row">
+                    <input
+                      type="range"
+                      className="long-slider"
+                      min={0}
+                      max={product.quantity}
+                      value={value}
+                      onChange={(e) =>
+                        handleQuantityChange(product._id, parseInt(e.target.value))
+                      }
+                      disabled={loading || disableSlider}
+                    />
                   </div>
                 </div>
-                <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginTop: '8px',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <button
-                  onClick={() => handleQuantityChange(product._id, value - 1)}
-                  disabled={loading}
-                  className="circle-btn"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  value={value}
-                  onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                  className="small-input"
-                  min={0}
-                  max={product.quantity}
-                  disabled={loading}
-                />
-                <button
-                  onClick={() => handleQuantityChange(product._id, value + 1)}
-                  disabled={loading}
-                  className="circle-btn"
-                >
-                  +
-                </button>
-                <button
-                  className="button button-destructive compact-action"
-                  onClick={() => handleSubtract(product._id)}
-                  disabled={loading || value === 0}
-                  title="Списать со склада"
-                >
-                  {loading ? 'Загрузка...' : `Списать ${value} ед.`}
-                </button>
               </div>
-              <input
-                type="range"
-                className="long-slider"
-                min={0}
-                max={product.quantity}
-                value={value}
-                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                disabled={loading || disableSlider}
-                style={{ marginTop: '8px' }}
-              />
-              </div>
-
-              {/* Средний ряд: Кнопки управления и ввод количества */}
-
-
-              {/* Нижний ряд: Слайдер выбора количества */}
-              <input
-                type="range"
-                className="long-slider"
-                min={0}
-                max={product.quantity}
-                value={value}
-                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                disabled={loading || disableSlider}
-                style={{ marginTop: '8px' }}
-              />
             </div>
           );
         })}

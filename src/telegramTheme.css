@@ -29,7 +29,6 @@ html, body {
 }
 
 /* HEADER */
-
 .header {
   display: flex;
   align-items: center;
@@ -56,7 +55,6 @@ html, body {
 }
 
 /* BUTTONS */
-
 .button-group {
   display: flex;
   gap: 8px;
@@ -85,7 +83,6 @@ html, body {
 }
 
 /* CARDS */
-
 .card {
   background-color: var(--secondary-bg-color);
   border-radius: 8px;
@@ -106,7 +103,6 @@ html, body {
 }
 
 /* FORMS */
-
 .input, .select {
   display: block;
   width: 100%;
@@ -139,77 +135,7 @@ html, body {
   margin-bottom: 12px;
 }
 
-/* PRODUCT CARD ЭЛЕМЕНТЫ */
-
-/* Изображение продукта */
-.product-thumb {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* Название и остаток */
-.product-name {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.product-qty {
-  font-size: 14px;
-  color: var(--subtitle-text-color);
-}
-
-/* Элементы управления (кнопки, инпут, слайдер) */
-.product-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.circle-btn {
-  width: 32px;
-  height: 32px;
-  font-size: 18px;
-  border-radius: 50%;
-  border: 1px solid var(--section-separator-color);
-  background: transparent;
-  color: var(--text-color);
-  cursor: pointer;
-}
-
-.small-input {
-  width: 50px;
-  height: 32px;
-  text-align: center;
-  font-size: 14px;
-  padding: 4px 6px;
-  border: 1px solid var(--section-separator-color);
-  border-radius: 4px;
-}
-
-.compact-action {
-  font-size: 13px;
-  white-space: nowrap;
-  padding: 6px 12px;
-}
-
-.long-slider {
-  width: 100%;
-  margin-top: 8px;
-}
-
-/* RANGE SLIDER */
-
-.range-slider {
-  width: 100%;
-  margin: 8px 0;
-  touch-action: pan-x;
-}
-
 /* SPINNER */
-
 .spinner {
   display: inline-block;
   width: 24px;
@@ -225,7 +151,6 @@ html, body {
 }
 
 /* CENTERED */
-
 .centered {
   text-align: center;
   padding: 16px;
@@ -235,8 +160,7 @@ html, body {
   color: var(--hint-color);
 }
 
-/* ADAPTATION / RESPONSIVE СТИЛИ */
-
+/* ADAPTIVE / RESPONSIVE СТИЛИ */
 @media (max-width: 768px) {
   .app-container {
     padding: 12px;
@@ -267,15 +191,5 @@ html, body {
   .input, .select {
     font-size: 15px;
     padding: 10px;
-  }
-  
-  /* Улучшенные стили для элементов управления продуктом на мобильных устройствах */
-  .product-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .small-input {
-    width: 60px;
   }
 }

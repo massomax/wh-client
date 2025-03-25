@@ -1,0 +1,108 @@
+/* Контейнер карточки с фото и деталями продукта */
+.product-card-container {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  /* Контейнер для увеличенного изображения продукта */
+  .product-image-container {
+    flex-shrink: 0;
+  }
+  
+  /* Увеличенное изображение продукта */
+  .product-thumb-large {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* Контейнер с деталями продукта (три ряда) */
+  .product-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Верхний ряд: Название продукта и остаток */
+  .product-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* Средний ряд: Элементы управления количеством и кнопка "Списать" */
+  .product-middle-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Нижний ряд: Слайдер выбора количества */
+  .product-bottom-row {
+    margin-top: 4px;
+  }
+  
+  /* Стили для элементов управления сохраняются, например: */
+  .product-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .circle-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--section-separator-color);
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+  }
+  
+  .small-input {
+    width: 50px;
+    height: 32px;
+    text-align: center;
+    font-size: 14px;
+    padding: 4px 6px;
+    border: 1px solid var(--section-separator-color);
+    border-radius: 4px;
+  }
+  
+  .compact-action {
+    font-size: 13px;
+    white-space: nowrap;
+    padding: 6px 12px;
+  }
+  
+  .long-slider {
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  /* Адаптивные стили для мобильных устройств */
+  @media (max-width: 768px) {
+    .product-card-container {
+      flex-direction: column;
+      align-items: center;
+    }
+    .product-image-container {
+      margin-bottom: 12px;
+    }
+    .product-details {
+      width: 100%;
+    }
+    .product-middle-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  
