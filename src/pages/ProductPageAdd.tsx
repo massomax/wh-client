@@ -4,6 +4,8 @@ import { api } from '../api/client';
 import ErrorBlock from '../components/ui/ErrorBlock';
 import Loader from '../components/ui/Loader';
 import EmptyState from '../components/ui/EmptyState';
+import '../productCard.css';
+
 
 type Props = {
   warehouseId: string;
@@ -11,10 +13,10 @@ type Props = {
   selectedCategory: string;
 };
 
-export default function ProductPageAdd({ 
+export default function ProductPageAdd({
   warehouseId,
   searchQuery,
-  selectedCategory
+  selectedCategory,
 }: Props) {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -31,16 +33,13 @@ export default function ProductPageAdd({
   const [disableSlider, setDisableSlider] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // ====== События скролла ======
+  // Отключаем слайдер на время скролла для лучшей отзывчивости
   useEffect(() => {
     const handleScroll = () => {
-      // При любом скролле отключаем ползунки
       setDisableSlider(true);
-      // Сбрасываем предыдущий таймер
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
-      // Через 200 мс после окончания скролла снова включаем
       scrollTimeoutRef.current = setTimeout(() => {
         setDisableSlider(false);
       }, 200);
@@ -74,9 +73,10 @@ export default function ProductPageAdd({
 
   // Фильтрация
   useEffect(() => {
-    const result = allProducts.filter(p => 
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (selectedCategory === 'all' || p.category === selectedCategory)
+    const result = allProducts.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (selectedCategory === 'all' || p.category === selectedCategory)
     );
     setFilteredProducts(result);
   }, [allProducts, searchQuery, selectedCategory]);
@@ -84,7 +84,7 @@ export default function ProductPageAdd({
   // Изменение количества
   const handleQuantityChange = (productId: string, value: number) => {
     const newValue = Math.max(0, value);
-    setQuantities(prev => ({ ...prev, [productId]: newValue }));
+    setQuantities((prev) => ({ ...prev, [productId]: newValue }));
   };
 
   // Добавление
@@ -93,7 +93,7 @@ export default function ProductPageAdd({
     const quantity = quantities[productId] || 0;
     if (quantity <= 0) return;
 
-    setLoadingProductIds(prev => ({ ...prev, [productId]: true }));
+    setLoadingProductIds((prev) => ({ ...prev, [productId]: true }));
 
     try {
       await api.patch(`/api/products/${productId}/quantity`, {
@@ -101,19 +101,19 @@ export default function ProductPageAdd({
         value: quantity,
         warehouseId,
       });
-      
+
       // Обновляем количество в списке
-      const updatedProducts = allProducts.map(p => 
+      const updatedProducts = allProducts.map((p) =>
         p._id === productId ? { ...p, quantity: p.quantity + quantity } : p
       );
       setAllProducts(updatedProducts);
 
       // Сбрасываем поле ввода
-      setQuantities(prev => ({ ...prev, [productId]: 0 }));
+      setQuantities((prev) => ({ ...prev, [productId]: 0 }));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
     } finally {
-      setLoadingProductIds(prev => ({ ...prev, [productId]: false }));
+      setLoadingProductIds((prev) => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -124,77 +124,92 @@ export default function ProductPageAdd({
       {!isLoading && !error && filteredProducts.length === 0 && (
         <EmptyState message="Товары не найдены" />
       )}
-  
-      {!isLoading && !error && filteredProducts.map(product => {
-        const quantityValue = quantities[product._id] || 0;
-        const isProductLoading = !!loadingProductIds[product._id];
-  
-        return (
-          <div key={product._id} className="card product-item">
-            {product.photo?.url && (
-              <img
-                src={product.photo.url}
-                alt={product.name}
-                aria-label={product.name}
-              />
-            )}
-            <div className="product-item-content">
-              <div className="card-title">{product.name}</div>
-              <div className="card-subtitle">Остаток: {product.quantity}</div>
 
-  
-              <div style={{ marginTop: '8px' }}>
-                <div className="product-quantity-controls">
-                  <button
-                    className="button"
-                    onClick={() => handleQuantityChange(product._id, quantityValue - 1)}
-                    disabled={isProductLoading}
-                  >
-                    -
-                  </button>
-  
-                  <input
-                    type="number"
-                    className="input"
-                    style={{ width: 80, textAlign: 'center' }}
-                    value={quantityValue}
-                    onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                    min={0}
-                    aria-label="Количество для добавления"
-                    disabled={isProductLoading}
-                  />
-  
-                  <button
-                    className="button"
-                    onClick={() => handleQuantityChange(product._id, quantityValue + 1)}
-                    disabled={isProductLoading}
-                  >
-                    +
-                  </button>
+      {!isLoading &&
+        !error &&
+        filteredProducts.map((product) => {
+          const quantityValue = quantities[product._id] || 0;
+          const isProductLoading = !!loadingProductIds[product._id];
+
+          return (
+            <div key={product._id} className="card product-card">
+              <div className="product-card-container">
+                {/* Фото слева */}
+                <div className="product-image-container">
+                  {product.photo?.url && (
+                    <img
+                      src={product.photo.url}
+                      alt={product.name}
+                      className="product-thumb-large"
+                    />
+                  )}
                 </div>
-  
-                <input
-                  type="range"
-                  className="range-slider"
-                  min={0}
-                  value={quantityValue}
-                  onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value))}
-                  aria-label="Слайдер количества"
-                  disabled={isProductLoading || disableSlider}
-                />
-  
-                <button
-                  className="button"
-                  onClick={() => handleAdd(product._id)}
-                  disabled={isProductLoading || quantityValue === 0}
-                >
-                  {isProductLoading ? 'Загрузка...' : `Добавить (${quantityValue} ед.)`}
-                </button>
+                {/* Три ряда справа */}
+                <div className="product-details">
+                  {/* Верхний ряд: название + остаток */}
+                  <div className="product-top-row">
+                    <div className="product-name">{product.name}</div>
+                    <div className="product-qty">Остаток: {product.quantity}</div>
+                  </div>
+
+                  {/* Средний ряд: кнопки + поле + "Добавить" */}
+                  <div className="product-middle-row">
+                    <div className="product-controls">
+                      <button
+                        onClick={() => handleQuantityChange(product._id, quantityValue - 1)}
+                        disabled={isProductLoading}
+                        className="circle-btn"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={quantityValue}
+                        onChange={(e) =>
+                          handleQuantityChange(product._id, parseInt(e.target.value))
+                        }
+                        className="small-input"
+                        min={0}
+                        aria-label="Количество для добавления"
+                        disabled={isProductLoading}
+                      />
+                      <button
+                        onClick={() => handleQuantityChange(product._id, quantityValue + 1)}
+                        disabled={isProductLoading}
+                        className="circle-btn"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      className="button compact-action"
+                      onClick={() => handleAdd(product._id)}
+                      disabled={isProductLoading || quantityValue === 0}
+                    >
+                      {isProductLoading ? 'Загрузка...' : `Добавить ${quantityValue} ед.`}
+                    </button>
+                  </div>
+
+                  {/* Нижний ряд: слайдер */}
+                  <div className="product-bottom-row">
+                    <input
+                      type="range"
+                      className="long-slider"
+                      min={0}
+                      max={999999} 
+                      value={quantityValue}
+                      onChange={(e) =>
+                        handleQuantityChange(product._id, parseInt(e.target.value))
+                      }
+                      aria-label="Слайдер количества"
+                      disabled={isProductLoading || disableSlider}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 }
