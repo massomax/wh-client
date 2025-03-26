@@ -16,7 +16,11 @@ const WarehouseCard = ({ warehouse }: { warehouse: Warehouse }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="card" onClick={() => navigate(`/warehouses/${warehouse._id}`)} style={{ cursor: 'pointer' }}>
+    <div
+      className="card"
+      onClick={() => navigate(`/warehouses/${warehouse._id}`)}
+      style={{ cursor: 'pointer' }}
+    >
       <div className="card-title">{warehouse.name}</div>
       <div className="card-subtitle">{warehouse.address}</div>
       <div style={{ marginTop: '8px', color: 'var(--accent-text-color)' }}>
@@ -27,7 +31,11 @@ const WarehouseCard = ({ warehouse }: { warehouse: Warehouse }) => {
 };
 
 export default function WarehousesPage() {
-  const [warehouses, setWarehouses] = useLocalStorage<Warehouse[]>('warehouses', [] as Warehouse[], CACHE_TTL);
+  const [warehouses, setWarehouses] = useLocalStorage<Warehouse[]>(
+    'warehouses',
+    [] as Warehouse[],
+    CACHE_TTL
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +44,7 @@ export default function WarehousesPage() {
 
   const fetchWarehouses = useCallback(
     async (search = '') => {
+      // Отменяем предыдущий запрос, если он ещё не завершён
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -53,7 +62,10 @@ export default function WarehousesPage() {
         setWarehouses(response.data);
       } catch (err: any) {
         if (err.name !== 'CanceledError' && !controller.signal.aborted) {
-          const errorMessage = err.response?.data?.message || err.message || 'Ошибка соединения с сервером';
+          const errorMessage =
+            err.response?.data?.message ||
+            err.message ||
+            'Ошибка соединения с сервером';
           setError(errorMessage);
           setWarehouses([]);
         }
@@ -64,26 +76,33 @@ export default function WarehousesPage() {
     [setWarehouses]
   );
 
-  const debouncedSearch = useMemo(() => debounce((query: string) => {
-    fetchWarehouses(query);
-  }, 500), [fetchWarehouses]);
+  // Дебаунс-функция: вызывает fetchWarehouses с задержкой 500 мс
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((query: string) => {
+        fetchWarehouses(query);
+      }, 500),
+    [fetchWarehouses]
+  );
 
+  // Единый эффект для загрузки и поиска
   useEffect(() => {
-    fetchWarehouses('');
+    if (!searchQuery.trim()) {
+      // Если поле поиска пустое — грузим все склады
+      fetchWarehouses('');
+    } else {
+      // Иначе запускаем дебаунс-поиск
+      debouncedSearch(searchQuery.trim());
+    }
+
+    // Очистка при размонтировании
     return () => {
       abortControllerRef.current?.abort();
       debouncedSearch.cancel();
     };
-  }, []);
-
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      debouncedSearch(searchQuery);
-    } else {
-      fetchWarehouses('');
-    }
   }, [searchQuery, debouncedSearch, fetchWarehouses]);
 
+  // Фильтрация складов по категории и названию (на клиенте)
   const filteredWarehouses = useMemo(
     () =>
       warehouses.filter(
@@ -94,6 +113,7 @@ export default function WarehousesPage() {
     [warehouses, selectedCategory, searchQuery]
   );
 
+  // Список категорий
   const categories = useMemo(
     () =>
       Array.from(
@@ -138,9 +158,11 @@ export default function WarehousesPage() {
         <EmptyState message="Склады не найдены" />
       )}
 
-      {!isLoading && !error && filteredWarehouses.map((warehouse) => (
-        <WarehouseCard key={warehouse._id} warehouse={warehouse} />
-      ))}
+      {!isLoading &&
+        !error &&
+        filteredWarehouses.map((warehouse) => (
+          <WarehouseCard key={warehouse._id} warehouse={warehouse} />
+        ))}
     </div>
   );
 }
