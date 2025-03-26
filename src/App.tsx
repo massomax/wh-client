@@ -15,6 +15,12 @@ import { useAuth } from './hooks/useAuth';
 import NotFoundPage from './pages/NotFoundPage';
 import './telegramTheme.css';
 
+// Новый компонент, который определяет, какую страницу показывать
+const HomePage = () => {
+  const { isManager } = useAuth();
+  return isManager ? <ManagerDashboard /> : <WarehousesPage />;
+};
+
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isLoggedIn } = useAuth();
   const location = useLocation();
@@ -27,7 +33,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <ProtectedRoute><WarehousesPage /></ProtectedRoute>,
+    element: <ProtectedRoute><HomePage /></ProtectedRoute>,
     errorElement: <ErrorPage />
   },
   {
