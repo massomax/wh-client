@@ -41,14 +41,10 @@ export default function WarehousesPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Храним последний поисковый запрос, по которому реально делали запрос к серверу
-  const lastSearchRef = useRef('');
+  // Храним последний запрос, чтобы не делать повторный, если search не изменился
+  const lastSearchRef = useRef<string>('');
 
-  // Храним, какие данные пришли с сервера в прошлый раз, чтобы не делать setWarehouses,
-  // если новые данные совпадают со старыми
-  const lastDataRef = useRef<Warehouse[] | null>(null);
-
-  // Отслеживаем AbortController, чтобы отменять предыдущие запросы при новом поиске
+  // AbortController для отмены предыдущих запросов
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Функция для запроса списков складов
@@ -76,19 +72,8 @@ export default function WarehousesPage() {
           signal: controller.signal,
         });
 
-        // Сравниваем с последними сохранёнными данными
-        const newData: Warehouse[] = response.data;
-        if (lastDataRef.current) {
-          // Если данные не изменились, не вызываем setWarehouses
-          if (JSON.stringify(newData) === JSON.stringify(lastDataRef.current)) {
-            return;
-          }
-        }
-
-        // Данные отличаются — сохраняем в локальное хранилище
-        setWarehouses(newData);
-        // Обновляем ref
-        lastDataRef.current = newData;
+        // Просто сохраняем новые данные
+        setWarehouses(response.data);
       } catch (err: any) {
         // Если запрос был отменён, не показываем ошибку
         if (err.name !== 'CanceledError' && !controller.signal.aborted) {
@@ -96,7 +81,6 @@ export default function WarehousesPage() {
             err.response?.data?.message || err.message || 'Ошибка соединения с сервером';
           setError(errorMessage);
           setWarehouses([]);
-          lastDataRef.current = [];
         }
       } finally {
         setIsLoading(false);
@@ -117,8 +101,8 @@ export default function WarehousesPage() {
   // Единый эффект для загрузки и поиска
   useEffect(() => {
     if (!searchQuery.trim()) {
-      // Если поле поиска пустое — грузим все склады
-      debouncedSearch.cancel(); // отменяем возможный отложенный вызов
+      // Если поле поиска пустое — отменяем дебаунс и грузим все склады
+      debouncedSearch.cancel();
       fetchWarehouses('');
     } else {
       // Иначе запускаем дебаунс-поиск
