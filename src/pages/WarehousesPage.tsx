@@ -36,27 +36,41 @@ export default function WarehousesPage() {
     [] as Warehouse[],
     CACHE_TTL
   );
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Храним последний запрос, чтобы не делать повторный, если search не изменился
-  const lastSearchRef = useRef<string>('');
+  /**
+   * lastSearchRef: хранит последний поисковый запрос,
+   * по которому реально делали запрос на сервер.
+   * Изначально null, чтобы при первом рендере запрос выполнился,
+   * даже если searchQuery === ''.
+   */
+  const lastSearchRef = useRef<string | null>(null);
+
+  /**
+   * lastDataRef: хранит данные, которые мы получили с сервера в последний раз.
+   * Если у нас уже есть данные и поиск не меняется, повторный запрос не нужен.
+   */
+  const lastDataRef = useRef<Warehouse[] | null>(null);
 
   // AbortController для отмены предыдущих запросов
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Функция для запроса списков складов
   const fetchWarehouses = useCallback(
     async (search: string) => {
-      // Если поисковый запрос не изменился — не делаем новый запрос
-      if (search === lastSearchRef.current) {
+      // 1. Если поисковый запрос не изменился
+      //    и у нас уже есть какие-то данные, — не делаем новый запрос.
+      if (search === lastSearchRef.current && lastDataRef.current) {
         return;
       }
+
+      // 2. Запоминаем, что мы запросили именно этот поисковый запрос
       lastSearchRef.current = search;
 
-      // Отменяем предыдущий запрос, если он ещё не завершён
+      // Отменяем предыдущий запрос, если он не завершён
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -72,8 +86,10 @@ export default function WarehousesPage() {
           signal: controller.signal,
         });
 
-        // Просто сохраняем новые данные
-        setWarehouses(response.data);
+        // Успешно загрузили данные
+        const newData: Warehouse[] = response.data;
+        setWarehouses(newData);
+        lastDataRef.current = newData;
       } catch (err: any) {
         // Если запрос был отменён, не показываем ошибку
         if (err.name !== 'CanceledError' && !controller.signal.aborted) {
@@ -81,6 +97,7 @@ export default function WarehousesPage() {
             err.response?.data?.message || err.message || 'Ошибка соединения с сервером';
           setError(errorMessage);
           setWarehouses([]);
+          lastDataRef.current = null;
         }
       } finally {
         setIsLoading(false);
@@ -98,18 +115,22 @@ export default function WarehousesPage() {
     [fetchWarehouses]
   );
 
-  // Единый эффект для загрузки и поиска
+  /**
+   * При каждом изменении searchQuery (или при первом рендере) мы:
+   * - Если поле поиска пустое (''), сразу грузим все склады
+   * - Иначе ждём 500 мс и делаем запрос с searchQuery
+   */
   useEffect(() => {
     if (!searchQuery.trim()) {
-      // Если поле поиска пустое — отменяем дебаунс и грузим все склады
+      // Отменяем возможный отложенный вызов
       debouncedSearch.cancel();
+      // Грузим все склады (search === '')
       fetchWarehouses('');
     } else {
-      // Иначе запускаем дебаунс-поиск
+      // Делаем дебаунс-поиск
       debouncedSearch(searchQuery.trim());
     }
 
-    // Очистка при размонтировании
     return () => {
       abortControllerRef.current?.abort();
       debouncedSearch.cancel();
@@ -164,10 +185,13 @@ export default function WarehousesPage() {
 
       {isLoading && <Loader />}
       {error && <ErrorBlock message={error} />}
+
+      {/* Если мы не грузимся и нет ошибки, но складов нет */}
       {!isLoading && !error && filteredWarehouses.length === 0 && (
         <EmptyState message="Склады не найдены" />
       )}
 
+      {/* Отображаем найденные склады */}
       {!isLoading &&
         !error &&
         filteredWarehouses.map((warehouse) => (
