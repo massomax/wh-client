@@ -6,7 +6,6 @@ import Loader from '../components/ui/Loader';
 import EmptyState from '../components/ui/EmptyState';
 import '../productCard.css';
 
-
 type Props = {
   warehouseId: string;
   searchQuery: string;
@@ -33,7 +32,54 @@ export default function ProductPageAdd({
   const [disableSlider, setDisableSlider] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Отключаем слайдер на время скролла для лучшей отзывчивости
+  // Логика загрузки фото
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoUploadProductId, setPhotoUploadProductId] = useState<string | null>(null);
+
+  const handlePhotoClick = (productId: string) => {
+    setPhotoUploadProductId(productId);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!photoUploadProductId) return;
+
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoadingProductIds((prev) => ({ ...prev, [photoUploadProductId]: true }));
+
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      await api.put(`/api/products/${warehouseId}/${photoUploadProductId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      // Обновляем фото в allProducts, приводя объект к типу Product
+      const updatedProducts = allProducts.map((p) => {
+        if (p._id === photoUploadProductId) {
+          return ({
+            ...p,
+            photo: { url: URL.createObjectURL(file) }
+          } as Product);
+        }
+        return p;
+      });
+      setAllProducts(updatedProducts);
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoadingProductIds((prev) => ({ ...prev, [photoUploadProductId!]: false }));
+      setPhotoUploadProductId(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Отключаем слайдер на время скролла
   useEffect(() => {
     const handleScroll = () => {
       setDisableSlider(true);
@@ -46,7 +92,6 @@ export default function ProductPageAdd({
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
       if (scrollTimeoutRef.current) {
@@ -87,7 +132,7 @@ export default function ProductPageAdd({
     setQuantities((prev) => ({ ...prev, [productId]: newValue }));
   };
 
-  // Добавление
+  // Добавление (PATCH с action=add)
   const handleAdd = async (productId: string) => {
     if (loadingProductIds[productId]) return;
     const quantity = quantities[productId] || 0;
@@ -102,13 +147,10 @@ export default function ProductPageAdd({
         warehouseId,
       });
 
-      // Обновляем количество в списке
       const updatedProducts = allProducts.map((p) =>
         p._id === productId ? { ...p, quantity: p.quantity + quantity } : p
       );
       setAllProducts(updatedProducts);
-
-      // Сбрасываем поле ввода
       setQuantities((prev) => ({ ...prev, [productId]: 0 }));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
@@ -125,6 +167,15 @@ export default function ProductPageAdd({
         <EmptyState message="Товары не найдены" />
       )}
 
+      {/* Скрытый input для загрузки фото */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept="image/*"
+        onChange={handleFileChange}
+      />
+
       {!isLoading &&
         !error &&
         filteredProducts.map((product) => {
@@ -135,15 +186,54 @@ export default function ProductPageAdd({
             <div key={product._id} className="card product-card">
               <div className="product-card-container">
                 {/* Фото слева */}
-                <div className="product-image-container">
-                  {product.photo?.url && (
+                <div
+                  className="product-image-container"
+                  style={{ cursor: 'pointer', position: 'relative' }}
+                >
+                  {isProductLoading && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: 'rgba(255,255,255,0.7)',
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: '#000'
+                      }}
+                    >
+                      Загрузка...
+                    </div>
+                  )}
+                  {product.photo?.url ? (
                     <img
                       src={product.photo.url}
                       alt={product.name}
                       className="product-thumb-large"
+                      onClick={() => handlePhotoClick(product._id)}
                     />
+                  ) : (
+                    <div
+                      onClick={() => handlePhotoClick(product._id)}
+                      style={{
+                        width: 120,
+                        height: 120,
+                        border: '1px dashed #ccc',
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '13px',
+                        color: '#666'
+                      }}
+                    >
+                      Нажмите, чтобы загрузить
+                    </div>
                   )}
                 </div>
+
                 {/* Три ряда справа */}
                 <div className="product-details">
                   {/* Верхний ряд: название + остаток */}
@@ -196,7 +286,7 @@ export default function ProductPageAdd({
                       type="range"
                       className="long-slider"
                       min={0}
-                      max={500} 
+                      max={500}
                       value={quantityValue}
                       onChange={(e) =>
                         handleQuantityChange(product._id, parseInt(e.target.value))
