@@ -40,10 +40,26 @@ export default function WarehousesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Храним последний поисковый запрос, по которому реально делали запрос к серверу
+  const lastSearchRef = useRef('');
+
+  // Храним, какие данные пришли с сервера в прошлый раз, чтобы не делать setWarehouses,
+  // если новые данные совпадают со старыми
+  const lastDataRef = useRef<Warehouse[] | null>(null);
+
+  // Отслеживаем AbortController, чтобы отменять предыдущие запросы при новом поиске
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Функция для запроса списков складов
   const fetchWarehouses = useCallback(
-    async (search = '') => {
+    async (search: string) => {
+      // Если поисковый запрос не изменился — не делаем новый запрос
+      if (search === lastSearchRef.current) {
+        return;
+      }
+      lastSearchRef.current = search;
+
       // Отменяем предыдущий запрос, если он ещё не завершён
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -59,15 +75,28 @@ export default function WarehousesPage() {
           params: { search },
           signal: controller.signal,
         });
-        setWarehouses(response.data);
+
+        // Сравниваем с последними сохранёнными данными
+        const newData: Warehouse[] = response.data;
+        if (lastDataRef.current) {
+          // Если данные не изменились, не вызываем setWarehouses
+          if (JSON.stringify(newData) === JSON.stringify(lastDataRef.current)) {
+            return;
+          }
+        }
+
+        // Данные отличаются — сохраняем в локальное хранилище
+        setWarehouses(newData);
+        // Обновляем ref
+        lastDataRef.current = newData;
       } catch (err: any) {
+        // Если запрос был отменён, не показываем ошибку
         if (err.name !== 'CanceledError' && !controller.signal.aborted) {
           const errorMessage =
-            err.response?.data?.message ||
-            err.message ||
-            'Ошибка соединения с сервером';
+            err.response?.data?.message || err.message || 'Ошибка соединения с сервером';
           setError(errorMessage);
           setWarehouses([]);
+          lastDataRef.current = [];
         }
       } finally {
         setIsLoading(false);
@@ -89,6 +118,7 @@ export default function WarehousesPage() {
   useEffect(() => {
     if (!searchQuery.trim()) {
       // Если поле поиска пустое — грузим все склады
+      debouncedSearch.cancel(); // отменяем возможный отложенный вызов
       fetchWarehouses('');
     } else {
       // Иначе запускаем дебаунс-поиск
@@ -103,26 +133,22 @@ export default function WarehousesPage() {
   }, [searchQuery, debouncedSearch, fetchWarehouses]);
 
   // Фильтрация складов по категории и названию (на клиенте)
-  const filteredWarehouses = useMemo(
-    () =>
-      warehouses.filter(
-        (w) =>
-          (selectedCategory === 'all' || w.category === selectedCategory) &&
-          w.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [warehouses, selectedCategory, searchQuery]
-  );
+  const filteredWarehouses = useMemo(() => {
+    return warehouses.filter(
+      (w) =>
+        (selectedCategory === 'all' || w.category === selectedCategory) &&
+        w.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [warehouses, selectedCategory, searchQuery]);
 
   // Список категорий
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          warehouses.map((w) => w.category).filter((c): c is string => !!c)
-        )
-      ),
-    [warehouses]
-  );
+  const categories = useMemo(() => {
+    return Array.from(
+      new Set(
+        warehouses.map((w) => w.category).filter((c): c is string => !!c)
+      )
+    );
+  }, [warehouses]);
 
   return (
     <div className="app-container">
