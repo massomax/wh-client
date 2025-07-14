@@ -13,26 +13,25 @@ export default function LoginForm() {
   const location = useLocation();
 
   const validateUsername = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return 'Имя пользователя обязательно';
-    if (trimmed.length < 3) return 'Минимум 3 символа';
-    if (!/^[a-zA-Z0-9_\-@.]+$/.test(trimmed)) {
-      return 'Допустимы: буквы, цифры, -, _, @, .';
-    }
-    return '';
-  };
+  const login = value.trim();
+  if (!login) return 'Имя пользователя обязательно';
+  if (login.length < 3) return 'Минимум 3 символа';
+  if (!/^[A-Za-z0-9_-]+$/.test(login)) {
+    return 'Допустимы только латинские буквы, цифры, "_", "-"';
+  }
 
-  const validatePassword = (value: string) => {
-    const pwd = value.trim();
-    if (!pwd) return 'Пароль обязателен';
-    if (pwd.length < 8) return 'Минимум 8 символов';
-    if (!/[A-Z]/.test(pwd)) return 'Должна быть заглавная буква';
-    if (!/\d/.test(pwd)) return 'Должна быть хотя бы одна цифра';
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) {
-      return 'Добавьте специальный символ';
-    }
-    return '';
-  };
+  return '';
+};
+
+// минимум 8 символов; хотя бы одна цифра
+const validatePassword = (value: string) => {
+  const pwd = value.trim();
+  if (!pwd) return 'Пароль обязателен';
+  if (pwd.length < 8) return 'Минимум 8 символов';
+  if (!/\d/.test(pwd)) return 'Пароль должен содержать хотя бы одну цифру';
+
+  return '';
+};
 
   useEffect(() => {
     const usernameError = validateUsername(username);
