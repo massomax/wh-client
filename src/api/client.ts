@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Warehouse } from '../types/warehouse';
 
 export const api = axios.create({
-  baseURL: 'http://212.108.82.32:5000/',
+  baseURL: 'https://212.108.82.32.sslip.io/',
   headers: {
     'Content-Type': 'application/json',
   },
