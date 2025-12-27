@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Warehouse } from '../types/warehouse';
 
 export const api = axios.create({
-  baseURL: 'https://whinv-98b4.vercel.app/',
+  baseURL: 'http://212.108.82.32:5000/',
   headers: {
     'Content-Type': 'application/json',
   },
